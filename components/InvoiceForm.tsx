@@ -154,7 +154,7 @@ export default function InvoiceForm({ data, onChange }: Props) {
             </div>
 
             <label className="field">
-              <span>Reference / description</span>
+              <span>Task / reference</span>
               <input
                 value={item.reference}
                 placeholder={`TS-YYYY-${String(i + 1).padStart(5, '0')}`}

@@ -95,7 +95,7 @@ export default function InvoicePreview({ data }: { data: Invoice }) {
       <table className="inv">
         <thead>
           <tr>
-            <th />
+            <th>TASK</th>
             <th>WORKING HOURS</th>
             <th>BILLABLE HOURS</th>
             <th>PRICE</th>
