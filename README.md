@@ -165,18 +165,56 @@ yourself a test before using it for client-facing invoices.
 
 #### Option A — Resend
 
-1. Sign up at [resend.com](https://resend.com).
-2. **Domains → Add Domain**, enter your domain, add the DNS records it shows
-   (an MX/TXT pair for the sending subdomain plus a DKIM `TXT`). Propagation is
-   usually minutes.
-3. **API Keys → Create API Key**, sending permission is enough.
+**1. Sign up** at [resend.com](https://resend.com).
+
+**2. Add your domain.** **Domains → Add Domain**, enter it, pick the region
+closest to you. Resend then shows a set of DNS records — typically an `MX` and
+an SPF `TXT` on a `send.` subdomain, plus a DKIM `TXT` at
+`resend._domainkey`. Add them **exactly as shown** in your DNS provider; the
+values are specific to your account and region, so don't copy them from a
+tutorial.
+
+A note on hosts: some DNS panels want the name relative (`send`) and some want
+it absolute (`send.yourdomain.com`). If verification fails, a duplicated domain
+suffix in the record name is the usual reason.
+
+**3. Verify.** Press **Verify** in Resend. Propagation is usually a few minutes;
+it can take longer. The domain must reach status `verified` — until then you can
+only email the address you signed up with.
+
+**4. Create an API key.** **API Keys → Create API Key**. **Sending access** is
+enough; it doesn't need full permissions.
+
+**5. Configure.** In `.env.local`:
 
 ```
 MAIL_FROM=Your Name <invoices@yourdomain.com>
 RESEND_API_KEY=re_xxxxxxxx
 ```
 
-`MAIL_FROM` must be on the verified domain.
+`MAIL_FROM` must be on the verified domain. The mailbox part (`invoices@`)
+doesn't need to exist as a real inbox — but use a real one if you want replies.
+Set it to something clients can reply to, or add a `Reply-To` later.
+
+**6. Check it**, before trusting it with a client invoice:
+
+```bash
+npm run check:email
+```
+
+That confirms the key is accepted, your domain is present in the account, and
+its status is actually `verified`. Then send a real one to yourself:
+
+```bash
+npm run check:email -- --send you@yourdomain.com
+```
+
+This goes through `lib/mailer.ts` — the same code path the app uses — so a pass
+means the app will send too. Check the spam folder as well as the inbox; a
+brand-new sending domain has no reputation yet.
+
+**7. Deploying?** Add `MAIL_FROM` and `RESEND_API_KEY` to the Vercel project's
+environment variables and redeploy.
 
 #### Option B — Brevo
 
@@ -266,6 +304,8 @@ text, use **Print → Save as PDF** instead.
 | `lib/supabase.ts` | Client, and the "is it configured" check |
 | `lib/pdf.ts` | Preview → PDF |
 | `lib/mailer.ts` | Resend / Brevo / SMTP, chosen by env vars |
+| `scripts/check-email.mts` | `npm run check:email` — config + live test send |
+| `scripts/check-supabase.mjs` | `npm run check:supabase` — DB and RLS check |
 | `app/api/send-invoice/route.ts` | Auth check, validation, send |
 | `components/InvoiceApp.tsx` | State, session, autosave, toolbar |
 | `components/InvoiceForm.tsx` | The inputs |
