@@ -45,11 +45,11 @@ export default function InvoicePreview({ data }: { data: Invoice }) {
             <V value={data.invoiceDate} fallback="[DD/MM/YYYY]" />
           </div>
           <div className="inv__metaRow">
-            <b>INVOICE PERIOD</b>{' '}
+            <b>INVOICE PERIOD:</b>{' '}
             <V value={data.invoicePeriod} fallback="[MMM YYYY]" />
           </div>
           <div className="inv__metaRow">
-            <b>INVOICE NO.</b> <V value={data.invoiceNo} fallback="[00000]" />
+            <b>INVOICE NO.:</b> <V value={data.invoiceNo} fallback="[00000]" />
           </div>
         </div>
       </div>
@@ -141,14 +141,16 @@ export default function InvoicePreview({ data }: { data: Invoice }) {
         <div className="remarks">
           <div className="remarks__title">Remarks / Payment Instructions:</div>
           <div className="remarks__line">
-            Account No.{' '}
+            <b className="remarks__key">Account No.:</b>{' '}
             <V value={data.accountNo} fallback="[0000000000000000]" />
           </div>
           <div className="remarks__line">
-            IFSC <V value={data.ifsc} fallback="[XXXX0000000]" />
+            <b className="remarks__key">IFSC:</b>{' '}
+            <V value={data.ifsc} fallback="[XXXX0000000]" />
           </div>
           <div className="remarks__line">
-            PAN No. <V value={data.panNo} fallback="[XXXXX0000X]" />
+            <b className="remarks__key">PAN No.:</b>{' '}
+            <V value={data.panNo} fallback="[XXXXX0000X]" />
           </div>
           {data.extraRemarks.trim() && (
             <div className="remarks__extra">{data.extraRemarks}</div>

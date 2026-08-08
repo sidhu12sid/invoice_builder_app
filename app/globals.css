@@ -931,6 +931,10 @@ tr.totalRow td {
   color: var(--muted);
 }
 
+.remarks__key {
+  font-weight: 700;
+}
+
 .remarks__extra {
   margin-top: 8px;
   white-space: pre-wrap;
