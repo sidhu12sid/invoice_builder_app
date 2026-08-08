@@ -4,13 +4,22 @@ import { useCallback, useEffect, useState } from 'react';
 import type { Session } from '@supabase/supabase-js';
 
 import InvoiceForm from './InvoiceForm';
-import InvoicePreview from './InvoicePreview';
-import SavedList from './SavedList';
+import ScaledPreview from './ScaledPreview';
 import AuthPanel from './AuthPanel';
-
 import SendDialog from './SendDialog';
+import Sidebar, { View } from './Sidebar';
+import ClientsView from './ClientsView';
+import ProfileView from './ProfileView';
+import SavedInvoicesView from './SavedInvoicesView';
 
-import { Invoice, defaultInvoice, nextInvoiceNo } from '@/lib/invoice';
+import {
+  Invoice,
+  applyClient,
+  applyProfile,
+  defaultInvoice,
+  fillFromProfile,
+  nextInvoiceNo,
+} from '@/lib/invoice';
 import { downloadInvoicePdf } from '@/lib/pdf';
 import { getSupabase, isSupabaseConfigured } from '@/lib/supabase';
 import {
@@ -21,10 +30,20 @@ import {
   markSent,
   saveInvoice,
 } from '@/lib/store';
+import { Client, deleteClient, listClients, saveClient } from '@/lib/clients';
+import { Profile, emptyProfile, loadProfile, saveProfile } from '@/lib/profile';
+import { describeDbError } from '@/lib/dbError';
 
 const DRAFT_KEY = 'invoice-generator:draft';
+const SIDEBAR_KEY = 'invoice-generator:sidebar-collapsed';
+
+/** What the send dialog and PDF builder should act on. */
+type Target = { data: Invoice; id: string | null };
 
 export default function InvoiceApp() {
+  const [view, setView] = useState<View>('create');
+  const [collapsed, setCollapsed] = useState(false);
+
   const [data, setData] = useState<Invoice>(defaultInvoice);
   const [currentId, setCurrentId] = useState<string | null>(null);
 
@@ -33,9 +52,17 @@ export default function InvoiceApp() {
 
   const [saved, setSaved] = useState<SavedInvoice[]>([]);
   const [listLoading, setListLoading] = useState(false);
+  const [selectedSaved, setSelectedSaved] = useState<SavedInvoice | null>(null);
+
+  const [clients, setClients] = useState<Client[]>([]);
+  const [clientsLoading, setClientsLoading] = useState(false);
+
+  const [profile, setProfile] = useState<Profile>(emptyProfile());
+  const [profileLoading, setProfileLoading] = useState(false);
+
   const [status, setStatus] = useState('');
   const [error, setError] = useState('');
-  const [sending, setSending] = useState(false);
+  const [sendTarget, setSendTarget] = useState<Target | null>(null);
   const [busyPdf, setBusyPdf] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
 
@@ -59,6 +86,24 @@ export default function InvoiceApp() {
   }, []);
 
   const signedIn = !isSupabaseConfigured || Boolean(session);
+
+  /* --------------------------------------------------------- sidebar -- */
+
+  // Read after hydration so the server and client first render agree.
+  useEffect(() => {
+    setCollapsed(localStorage.getItem(SIDEBAR_KEY) === '1');
+  }, []);
+
+  const toggleSidebar = () =>
+    setCollapsed((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem(SIDEBAR_KEY, next ? '1' : '0');
+      } catch {
+        /* storage blocked — the toggle still works for this session */
+      }
+      return next;
+    });
 
   /* ------------------------------------------------------------ draft -- */
 
@@ -89,26 +134,69 @@ export default function InvoiceApp() {
     }
   }, [data, currentId, draftLoaded]);
 
-  /* ------------------------------------------------------- saved list -- */
+  /* -------------------------------------------------------- data load -- */
 
   const refresh = useCallback(async () => {
     if (!signedIn) return;
     setListLoading(true);
     setError('');
     try {
-      setSaved(await listInvoices());
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Could not load saved invoices.'
+      const list = await listInvoices();
+      setSaved(list);
+      // Keep the previewed invoice pointing at fresh data, or drop it if it's
+      // been deleted.
+      setSelectedSaved((prev) =>
+        prev ? list.find((x) => x.id === prev.id) ?? null : null
       );
+    } catch (err) {
+      setError(describeDbError(err, 'invoices'));
     } finally {
       setListLoading(false);
     }
   }, [signedIn]);
 
+  const refreshClients = useCallback(async () => {
+    if (!signedIn) return;
+    setClientsLoading(true);
+    try {
+      setClients(await listClients());
+    } catch (err) {
+      setError(describeDbError(err, 'clients'));
+    } finally {
+      setClientsLoading(false);
+    }
+  }, [signedIn]);
+
   useEffect(() => {
     void refresh();
-  }, [refresh]);
+    void refreshClients();
+  }, [refresh, refreshClients]);
+
+  useEffect(() => {
+    if (!signedIn || !draftLoaded) return;
+    let cancelled = false;
+
+    (async () => {
+      setProfileLoading(true);
+      try {
+        const loaded = await loadProfile();
+        if (cancelled) return;
+        setProfile(loaded);
+        // Fills only blank fields, so a restored draft keeps whatever's in it
+        // and a loaded invoice keeps the details it was created with.
+        setData((prev) => fillFromProfile(prev, loaded));
+      } catch (err) {
+        // Non-fatal: invoices still work, they just aren't pre-filled.
+        if (!cancelled) setError(describeDbError(err, 'your details'));
+      } finally {
+        if (!cancelled) setProfileLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [signedIn, draftLoaded]);
 
   /* ---------------------------------------------------------- actions -- */
 
@@ -128,15 +216,15 @@ export default function InvoiceApp() {
       flash(nextStatus === 'draft' ? 'Saved as draft.' : 'Saved as final.');
       await refresh();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not save.');
+      setError(describeDbError(err, 'invoices'));
     }
   };
 
-  const handleDownloadPdf = async () => {
+  const handleDownloadPdf = async (invoice: Invoice) => {
     setError('');
     setBusyPdf(true);
     try {
-      await downloadInvoicePdf(data);
+      await downloadInvoicePdf(invoice);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not build the PDF.');
     } finally {
@@ -145,10 +233,13 @@ export default function InvoiceApp() {
   };
 
   const handleSent = async (recipient: string) => {
-    setSending(false);
+    const target = sendTarget;
+    setSendTarget(null);
+    if (!target) return;
+
     try {
-      const id = await markSent(data, currentId, recipient);
-      setCurrentId(id);
+      const id = await markSent(target.data, target.id, recipient);
+      if (target.id === currentId) setCurrentId(id);
       flash(`Sent to ${recipient}.`);
       await refresh();
     } catch (err) {
@@ -162,21 +253,24 @@ export default function InvoiceApp() {
   };
 
   const handleNew = () => {
-    setData(defaultInvoice);
+    setData(applyProfile(defaultInvoice, profile));
     setCurrentId(null);
+    setView('create');
     flash('Started a new invoice.');
   };
 
-  const handleLoad = (item: SavedInvoice) => {
+  const handleEdit = (item: SavedInvoice) => {
     setData({ ...defaultInvoice, ...item.data });
     setCurrentId(item.id);
-    flash(`Loaded ${item.title}.`);
+    setView('create');
+    flash(`Editing ${item.title}.`);
   };
 
   const handleDuplicate = (item: SavedInvoice) => {
     const copy = { ...defaultInvoice, ...item.data };
     setData({ ...copy, invoiceNo: nextInvoiceNo(copy.invoiceNo) });
     setCurrentId(null); // saves as a new row
+    setView('create');
     flash('Copied — invoice number bumped. Save when ready.');
   };
 
@@ -189,118 +283,186 @@ export default function InvoiceApp() {
       await refresh();
       flash('Deleted.');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not delete.');
+      setError(describeDbError(err, 'invoices'));
     }
+  };
+
+  const handleSaveClient = async (client: Client) => {
+    try {
+      await saveClient(client);
+    } catch (err) {
+      throw new Error(describeDbError(err, 'clients'));
+    }
+    await refreshClients();
+    flash(client.id ? 'Client updated.' : 'Client added.');
+  };
+
+  const handleDeleteClient = async (client: Client) => {
+    try {
+      await deleteClient(client.id);
+    } catch (err) {
+      throw new Error(describeDbError(err, 'clients'));
+    }
+    await refreshClients();
+    flash('Client deleted.');
+  };
+
+  const handleSaveProfile = async (next: Profile) => {
+    try {
+      await saveProfile(next);
+    } catch (err) {
+      throw new Error(describeDbError(err, 'your details'));
+    }
+    setProfile(next);
+    setError('');
+    // Reflect the change on an invoice that hasn't been saved yet.
+    if (!currentId) setData((prev) => applyProfile(prev, next));
   };
 
   const handleSignOut = async () => {
     await getSupabase()?.auth.signOut();
     setSaved([]);
+    setClients([]);
+    setSelectedSaved(null);
+    setProfile(emptyProfile());
     setCurrentId(null);
   };
 
   /* ------------------------------------------------------------ views -- */
 
-  if (!authReady) {
-    return <p className="bootMsg">Loading…</p>;
-  }
-
-  if (!signedIn) {
-    return <AuthPanel />;
-  }
+  if (!authReady) return <p className="bootMsg">Loading…</p>;
+  if (!signedIn) return <AuthPanel />;
 
   return (
-    <div className="app">
-      <div className="pane pane--form">
-        <h1 className="appTitle">Invoice Generator</h1>
-        <p className="appSub">
-          Fill in the fields — the preview updates as you type.
-        </p>
+    <div className={`shell${collapsed ? ' is-collapsed' : ''}`}>
+      <Sidebar
+        view={view}
+        onChange={setView}
+        account={session?.user.email ?? ''}
+        synced={isSupabaseConfigured}
+        collapsed={collapsed}
+        onToggle={toggleSidebar}
+        onSignOut={handleSignOut}
+      />
 
-        <div className="accountBar">
-          <span className="badge">
-            {isSupabaseConfigured
-              ? `Synced · ${session?.user.email ?? ''}`
-              : 'This browser only'}
-          </span>
-          {isSupabaseConfigured && (
-            <button type="button" className="linkBtn" onClick={handleSignOut}>
-              Sign out
-            </button>
-          )}
-        </div>
-
-        <fieldset className="fieldset">
-          <legend>Saved invoices</legend>
-          <SavedList
+      <main className="shell__main">
+        {view === 'saved' && (
+          <SavedInvoicesView
             items={saved}
-            currentId={currentId}
             loading={listLoading}
-            onLoad={handleLoad}
+            selected={selectedSaved}
+            collapsed={collapsed}
+            busyPdf={busyPdf}
+            status={status}
+            error={error}
+            onSelect={setSelectedSaved}
+            onEdit={handleEdit}
             onDuplicate={handleDuplicate}
             onDelete={handleDelete}
+            onPrint={() => window.print()}
+            onDownloadPdf={() =>
+              selectedSaved && handleDownloadPdf(selectedSaved.data)
+            }
+            onEmail={() =>
+              selectedSaved &&
+              setSendTarget({ data: selectedSaved.data, id: selectedSaved.id })
+            }
           />
-        </fieldset>
+        )}
 
-        <InvoiceForm data={data} onChange={update} />
-      </div>
+        {view === 'clients' && (
+          <ClientsView
+            clients={clients}
+            loading={clientsLoading}
+            onSave={handleSaveClient}
+            onDelete={handleDeleteClient}
+          />
+        )}
 
-      <div className="pane pane--preview">
-        <div className="toolbar">
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={() => handleSave('draft')}
-          >
-            Save draft
-          </button>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => handleSave('final')}
-          >
-            Save as final
-          </button>
-          <button type="button" className="btn btn--ghost" onClick={handleNew}>
-            New
-          </button>
+        {view === 'profile' && (
+          <ProfileView
+            profile={profile}
+            loading={profileLoading}
+            onSave={handleSaveProfile}
+          />
+        )}
 
-          <div className="toolbar__spacer" />
+        {view === 'create' && (
+          <div className="app">
+            <div className="pane pane--form">
+              <InvoiceForm
+                data={data}
+                onChange={update}
+                clients={clients}
+                onPickClient={(client) =>
+                  setData((prev) => applyClient(prev, client))
+                }
+              />
+            </div>
 
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={handleDownloadPdf}
-            disabled={busyPdf}
-          >
-            {busyPdf ? 'Building…' : 'Download PDF'}
-          </button>
-          <button
-            type="button"
-            className="btn btn--ghost"
-            onClick={() => window.print()}
-          >
-            Print
-          </button>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => setSending(true)}
-          >
-            Email invoice
-          </button>
-        </div>
+            <div className="pane pane--preview">
+              <div className="toolbar">
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => handleSave('draft')}
+                >
+                  Save draft
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => handleSave('final')}
+                >
+                  Save as final
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={handleNew}
+                >
+                  New
+                </button>
 
-        {status && <p className="msg msg--ok toolbarError">{status}</p>}
-        {error && <p className="msg msg--error toolbarError">{error}</p>}
+                <div className="toolbar__spacer" />
 
-        <InvoicePreview data={data} />
-      </div>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => handleDownloadPdf(data)}
+                  disabled={busyPdf}
+                >
+                  {busyPdf ? 'Building…' : 'Download PDF'}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--ghost"
+                  onClick={() => window.print()}
+                >
+                  Print
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={() => setSendTarget({ data, id: currentId })}
+                >
+                  Email invoice
+                </button>
+              </div>
 
-      {sending && (
+              {status && <p className="msg msg--ok toolbarError">{status}</p>}
+              {error && <p className="msg msg--error toolbarError">{error}</p>}
+
+              <ScaledPreview data={data} remeasureKey={collapsed} />
+            </div>
+          </div>
+        )}
+      </main>
+
+      {sendTarget && (
         <SendDialog
-          data={data}
-          onClose={() => setSending(false)}
+          data={sendTarget.data}
+          onClose={() => setSendTarget(null)}
           onSent={handleSent}
         />
       )}

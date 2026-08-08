@@ -1,10 +1,13 @@
 'use client';
 
 import { Invoice, LineItem, emptyItem } from '@/lib/invoice';
+import { Client } from '@/lib/clients';
 
 type Props = {
   data: Invoice;
   onChange: (patch: Partial<Invoice>) => void;
+  clients: Client[];
+  onPickClient: (client: Client) => void;
 };
 
 function Text({
@@ -33,7 +36,12 @@ function Text({
   );
 }
 
-export default function InvoiceForm({ data, onChange }: Props) {
+export default function InvoiceForm({
+  data,
+  onChange,
+  clients,
+  onPickClient,
+}: Props) {
   const setItem = (id: string, patch: Partial<LineItem>) =>
     onChange({
       items: data.items.map((it) => (it.id === id ? { ...it, ...patch } : it)),
@@ -108,6 +116,36 @@ export default function InvoiceForm({ data, onChange }: Props) {
 
       <fieldset className="fieldset">
         <legend>Bill to</legend>
+
+        <label className="field">
+          <span>Client</span>
+          <select
+            value={clients.find((c) => c.name === data.clientCompany)?.id ?? ''}
+            disabled={clients.length === 0}
+            onChange={(e) => {
+              const picked = clients.find((c) => c.id === e.target.value);
+              if (picked) onPickClient(picked);
+            }}
+          >
+            <option value="">
+              {clients.length
+                ? 'Choose a client…'
+                : 'No saved clients yet'}
+            </option>
+            {clients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <p className="hint hint--tight">
+          {clients.length
+            ? 'Picking a client fills the four fields below.'
+            : 'Add clients under “Clients” in the sidebar to pick them here.'}
+        </p>
+
         <Text
           label="Company name"
           value={data.clientCompany}

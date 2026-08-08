@@ -33,12 +33,19 @@ export async function renderInvoicePdf(): Promise<Blob> {
     import('jspdf'),
   ]);
 
-  const canvas = await html2canvas(node, {
-    scale: 2, // legible text at print size
-    backgroundColor: '#ffffff',
-    useCORS: true,
-    logging: false,
-  });
+  // The on-screen sheet is shrunk to fit its column; capture it at full size.
+  document.body.classList.add('is-capturing');
+  let canvas: HTMLCanvasElement;
+  try {
+    canvas = await html2canvas(node, {
+      scale: 2, // legible text at print size
+      backgroundColor: '#ffffff',
+      useCORS: true,
+      logging: false,
+    });
+  } finally {
+    document.body.classList.remove('is-capturing');
+  }
 
   // JPEG, not PNG: html2canvas' antialiasing defeats PNG's flat-colour
   // compression and produced ~10 MB files, over most mail servers' limits.

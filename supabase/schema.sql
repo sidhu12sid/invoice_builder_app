@@ -63,3 +63,65 @@ drop trigger if exists invoices_touch_updated_at on public.invoices;
 create trigger invoices_touch_updated_at
   before update on public.invoices
   for each row execute function public.touch_updated_at();
+
+-- ---------------------------------------------------------------- clients --
+
+create table if not exists public.clients (
+  id          uuid primary key default gen_random_uuid(),
+  user_id     uuid not null references auth.users (id) on delete cascade,
+  name        text not null default '',
+  address     text not null default '',
+  email       text not null default '',
+  phone       text not null default '',
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+alter table public.clients enable row level security;
+
+drop policy if exists "own clients" on public.clients;
+create policy "own clients"
+  on public.clients
+  for all
+  to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+create index if not exists clients_user_name_idx
+  on public.clients (user_id, name);
+
+drop trigger if exists clients_touch_updated_at on public.clients;
+create trigger clients_touch_updated_at
+  before update on public.clients
+  for each row execute function public.touch_updated_at();
+
+-- ---------------------------------------------------------------- profile --
+-- One row per user: the "from" block and payment details reused on every
+-- invoice. user_id is the primary key, so upsert can't create duplicates.
+
+create table if not exists public.profile (
+  user_id        uuid primary key references auth.users (id) on delete cascade,
+  full_name      text not null default '',
+  address_line1  text not null default '',
+  address_line2  text not null default '',
+  phone          text not null default '',
+  account_no     text not null default '',
+  ifsc           text not null default '',
+  pan            text not null default '',
+  updated_at     timestamptz not null default now()
+);
+
+alter table public.profile enable row level security;
+
+drop policy if exists "own profile" on public.profile;
+create policy "own profile"
+  on public.profile
+  for all
+  to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop trigger if exists profile_touch_updated_at on public.profile;
+create trigger profile_touch_updated_at
+  before update on public.profile
+  for each row execute function public.touch_updated_at();

@@ -29,6 +29,313 @@ body {
   line-height: 1.45;
 }
 
+/* -------------------------------------------------------------- sidebar -- */
+
+.shell {
+  display: grid;
+  grid-template-columns: 232px 1fr;
+  align-items: start;
+  min-height: 100vh;
+}
+
+.shell__main {
+  min-width: 0;
+}
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 20px 16px;
+  background: var(--navy);
+  color: #fff;
+}
+
+.shell.is-collapsed {
+  grid-template-columns: 60px 1fr;
+}
+
+.sidebar__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 30px;
+}
+
+.sidebar.is-collapsed .sidebar__top {
+  justify-content: center;
+}
+
+.sidebar__brand {
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding-left: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar__toggle {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 7px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+}
+
+.sidebar__toggle:hover {
+  background: rgba(255, 255, 255, 0.24);
+}
+
+.sidebar__icon {
+  flex: none;
+}
+
+.sidebar__text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.sidebar.is-collapsed .sidebar__link {
+  justify-content: center;
+  padding: 10px 0;
+}
+
+.sidebar__nav {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1;
+}
+
+.sidebar__link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  background: none;
+  border: 0;
+  border-radius: 7px;
+  padding: 9px 10px;
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+}
+
+.sidebar__link:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.sidebar__link.is-active {
+  background: #fff;
+  color: var(--navy);
+}
+
+.sidebar__label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.sidebar__hint {
+  font-size: 11px;
+  opacity: 0.75;
+}
+
+.sidebar__foot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 0 4px;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.sidebar__foot .linkBtn {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.badge--block {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+}
+
+@media (max-width: 900px) {
+  .shell,
+  .shell.is-collapsed {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    height: auto;
+  }
+
+  .sidebar__nav {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .sidebar__hint {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------- page -- */
+
+.page {
+  padding: 28px 24px;
+  max-width: 1100px;
+}
+
+.page__head {
+  margin-bottom: 20px;
+}
+
+.page__title {
+  margin: 0 0 4px;
+  font-size: 22px;
+  color: var(--navy);
+}
+
+.page__sub {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+  max-width: 60ch;
+}
+
+.page__cols {
+  display: grid;
+  grid-template-columns: minmax(280px, 380px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1000px) {
+  .page__cols {
+    grid-template-columns: 1fr;
+  }
+}
+
+.card {
+  background: var(--panel-bg);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.card--narrow {
+  max-width: 480px;
+}
+
+.card__title {
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--navy);
+}
+
+.card__title--spaced {
+  margin-top: 20px;
+}
+
+.card__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.clientRow {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.clientRow__address {
+  font-size: 11px;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+
+.page--wide {
+  max-width: none;
+}
+
+/* ------------------------------------------------------- saved invoices -- */
+
+.savedLayout {
+  display: grid;
+  grid-template-columns: minmax(300px, 420px) 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .savedLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.savedLayout__list .saved {
+  max-height: none;
+}
+
+.savedLayout__preview {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.savedEmpty {
+  display: grid;
+  place-items: center;
+  min-height: 220px;
+  text-align: center;
+}
+
+.previewLabel {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.saved__amount {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-left: auto;
+}
+
 /* ---------------------------------------------------------------- shell -- */
 
 .app {
@@ -72,8 +379,29 @@ body {
 .pane--preview {
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch;
   gap: 12px;
+  min-width: 0;
+}
+
+/* Shrinks the fixed-width A4 sheet to whatever column width is available. */
+.previewFit {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.previewFit__inner {
+  width: 210mm;
+  transform-origin: top left;
+}
+
+/* Capture and print need the sheet at its true size, not the fitted one. */
+body.is-capturing .previewFit,
+body.is-capturing .previewFit__inner {
+  height: auto !important;
+  overflow: visible !important;
+  transform: none !important;
 }
 
 .toolbar {
@@ -142,7 +470,8 @@ body {
 }
 
 input,
-textarea {
+textarea,
+select {
   width: 100%;
   font: inherit;
   font-size: 13px;
@@ -154,7 +483,8 @@ textarea {
 }
 
 input:focus,
-textarea:focus {
+textarea:focus,
+select:focus {
   outline: 2px solid var(--navy-tint);
   border-color: var(--navy);
 }
@@ -227,6 +557,16 @@ textarea {
   font-size: 12px;
   color: var(--muted);
   margin: 6px 0 0;
+}
+
+.hint--tight {
+  margin: -4px 0 10px;
+}
+
+select:disabled {
+  background: #f2f4f8;
+  color: var(--muted);
+  cursor: not-allowed;
 }
 
 .btn--tiny {
@@ -637,17 +977,43 @@ tr.totalRow td {
     background: #fff;
   }
 
+  .shell {
+    display: block;
+    min-height: 0;
+  }
+
   .app {
     display: block;
     padding: 0;
     max-width: none;
   }
 
+  .sidebar,
   .pane--form,
   .toolbar,
   .toolbarError,
-  .modalBackdrop {
+  .modalBackdrop,
+  .page__head,
+  .savedLayout__list,
+  .savedEmpty {
     display: none !important;
+  }
+
+  /* Saved-invoices view: print just the previewed sheet. */
+  .page {
+    padding: 0 !important;
+  }
+
+  .savedLayout {
+    display: block !important;
+  }
+
+  .previewFit,
+  .previewFit__inner {
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    transform: none !important;
   }
 
   .pane--preview {

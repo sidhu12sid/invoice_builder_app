@@ -8,20 +8,39 @@ palette, Calibri, and layout.
 npm run dev
 ```
 
+## Getting around
+
+A sidebar on the left switches between four sections. The chevron at its top
+collapses it to an icon rail; that choice is remembered.
+
+| Section | What it's for |
+| --- | --- |
+| **Create invoice** | Fill in a new invoice against the live preview |
+| **Saved invoices** | Everything you've saved — preview, print, download, email |
+| **Clients** | People you bill — pick one when invoicing and their details fill in |
+| **My details** | Your name, address, phone, and bank/PAN details |
+
+Fill in **My details** first: every new invoice starts pre-filled with it, so
+you never retype your account number. Add a client under **Clients**, and a
+"Pick a saved client" dropdown appears in the Bill To section.
+
+Editing an invoice never writes back to the client or profile records — change
+a client's address there and past invoices keep the address they were sent with.
+
 ## Where your previous invoices are
 
-In the left-hand pane, **top section, "Saved invoices"** — above the From /
-Invoice details fields. Each row shows the invoice number, the client, a status
-pill, and the date.
+The **Saved invoices** section. Each row shows the invoice number, client,
+status pill, date and total.
 
-- **Click a row** to load it back into the form.
+- **Preview** renders it on the right, with **Download PDF**, **Print** and
+  **Email invoice** for that invoice.
+- **Edit** loads it back into Create invoice.
 - **Duplicate** copies it into a new invoice and bumps the invoice number —
   the usual monthly workflow.
 - **Delete** removes it.
 
-The list is empty until you press Save at least once. Where those rows actually
-live depends on the mode below. With Supabase connected you can also see them as
-table rows in the dashboard under **Table Editor → invoices**.
+The list is empty until you press Save at least once. With Supabase connected
+you can also see the rows in the dashboard under **Table Editor → invoices**.
 
 Separately, whatever you're typing right now is kept as an autosaved draft, so
 closing the tab by accident doesn't lose it. That's distinct from "Save draft",
@@ -301,6 +320,11 @@ text, use **Print → Save as PDF** instead.
 | --- | --- |
 | `lib/invoice.ts` | Invoice type, defaults, totals, number formatting |
 | `lib/store.ts` | Save/list/delete + status — Supabase or localStorage |
+| `lib/clients.ts` | Client records |
+| `lib/profile.ts` | Your own details, one row per user |
+| `components/Sidebar.tsx` | Three-section navigation |
+| `components/ClientsView.tsx` | Client list and editor |
+| `components/ProfileView.tsx` | "My details" form |
 | `lib/supabase.ts` | Client, and the "is it configured" check |
 | `lib/pdf.ts` | Preview → PDF |
 | `lib/mailer.ts` | Resend / Brevo / SMTP, chosen by env vars |

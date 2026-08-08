@@ -44,10 +44,12 @@ export const emptyItem = (): LineItem => ({
 });
 
 export const defaultInvoice: Invoice = {
-  senderName: 'Your Name',
-  senderAddress1: 'Address Line 1',
-  senderAddress2: 'Address Line 2, City, State PIN: 000000',
-  senderPhone: '+91 00000 00000',
+  // Left blank so the preview shows the template's bracketed placeholders and
+  // "My details" has something to fill in.
+  senderName: '',
+  senderAddress1: '',
+  senderAddress2: '',
+  senderPhone: '',
 
   invoiceDate: '',
   invoicePeriod: '',
@@ -96,6 +98,76 @@ export function totals(items: LineItem[]) {
 /** Renders a value, or the template placeholder in muted style when empty. */
 export const placeholder = (value: string, fallback: string) =>
   value.trim() ? value : fallback;
+
+/** Copies the saved "from" block and payment details onto an invoice. */
+export function applyProfile<T extends Invoice>(
+  invoice: T,
+  profile: {
+    fullName: string;
+    addressLine1: string;
+    addressLine2: string;
+    phone: string;
+    accountNo: string;
+    ifsc: string;
+    pan: string;
+  }
+): T {
+  return {
+    ...invoice,
+    senderName: profile.fullName,
+    senderAddress1: profile.addressLine1,
+    senderAddress2: profile.addressLine2,
+    senderPhone: profile.phone,
+    accountNo: profile.accountNo,
+    ifsc: profile.ifsc,
+    panNo: profile.pan,
+  };
+}
+
+/**
+ * Like applyProfile, but only fills fields that are still blank. Used when the
+ * profile loads after the page, so it can't overwrite something already typed.
+ */
+export function fillFromProfile<T extends Invoice>(
+  invoice: T,
+  profile: {
+    fullName: string;
+    addressLine1: string;
+    addressLine2: string;
+    phone: string;
+    accountNo: string;
+    ifsc: string;
+    pan: string;
+  }
+): T {
+  const keep = (current: string, incoming: string) =>
+    current.trim() ? current : incoming;
+
+  return {
+    ...invoice,
+    senderName: keep(invoice.senderName, profile.fullName),
+    senderAddress1: keep(invoice.senderAddress1, profile.addressLine1),
+    senderAddress2: keep(invoice.senderAddress2, profile.addressLine2),
+    senderPhone: keep(invoice.senderPhone, profile.phone),
+    accountNo: keep(invoice.accountNo, profile.accountNo),
+    ifsc: keep(invoice.ifsc, profile.ifsc),
+    panNo: keep(invoice.panNo, profile.pan),
+  };
+}
+
+/** Copies a saved client into the Bill To block. */
+export function applyClient<T extends Invoice>(
+  invoice: T,
+  client: { name: string; address: string; email: string; phone: string }
+): T {
+  return {
+    ...invoice,
+    clientCompany: client.name,
+    clientAddress: client.address,
+    clientEmail: client.email,
+    clientPhone: client.phone,
+  };
+}
 
 /** "00017" -> "00018", "INV-9" -> "INV-10". Left alone if there's no number. */
 export function nextInvoiceNo(no: string): string {
