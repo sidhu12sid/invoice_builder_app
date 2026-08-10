@@ -23,7 +23,9 @@ export default function SendDialog({ data, onClose, onSent }: Props) {
     const no = data.invoiceNo.trim();
     const period = data.invoicePeriod.trim();
     const who = data.senderName.trim();
-    const amount = `${data.currency}${formatAmount(totals(data.items).price)}`;
+    const amount = `${data.currency}${formatAmount(
+      totals(data.items, data.rate).price
+    )}`;
 
     setSubject(
       ['Invoice', no && `#${no}`, period && `— ${period}`]

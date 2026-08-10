@@ -27,6 +27,16 @@ you never retype your account number. Add a client under **Clients**, and a
 Editing an invoice never writes back to the client or profile records — change
 a client's address there and past invoices keep the address they were sent with.
 
+### Hourly rates
+
+Give a client an **hourly rate** and it copies onto any invoice you raise for
+them. With a rate set, each line's price is worked out as **billable hours ×
+rate** — the Price box turns read-only, and the rate is printed on the invoice.
+
+Clear the rate on an invoice to go back to typing prices by hand. The rate is
+copied, not linked, so raising it later doesn't rewrite invoices you've already
+sent. A rate of `0`, blank, or anything unparseable counts as "no rate".
+
 ## Where your previous invoices are
 
 The **Saved invoices** section. Each row shows the invoice number, client,

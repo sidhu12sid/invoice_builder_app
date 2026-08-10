@@ -95,6 +95,20 @@ export default function ClientsView({
             />
           </label>
 
+          <label className="field">
+            <span>Hourly rate</span>
+            <input
+              inputMode="decimal"
+              value={draft.rate}
+              placeholder="1000"
+              onChange={(e) => set({ rate: e.target.value })}
+            />
+          </label>
+          <p className="hint hint--tight">
+            Used to work out each line’s price from billable hours. Leave blank
+            to type prices by hand.
+          </p>
+
           {error && <p className="msg msg--error">{error}</p>}
 
           <div className="card__actions">
@@ -144,6 +158,11 @@ export default function ClientsView({
                     )}
                     {client.phone && (
                       <span className="saved__date">{client.phone}</span>
+                    )}
+                    {client.rate.trim() && (
+                      <span className="saved__date">
+                        Rate: {client.rate} / hr
+                      </span>
                     )}
                     {client.address && (
                       <span className="clientRow__address">

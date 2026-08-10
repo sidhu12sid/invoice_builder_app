@@ -47,7 +47,7 @@ export default function SavedList({
   return (
     <ul className="saved">
       {items.map((item) => {
-        const total = totals(item.data.items).price;
+        const total = totals(item.data.items, item.data.rate).price;
         return (
           <li
             key={item.id}

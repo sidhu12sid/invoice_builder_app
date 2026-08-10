@@ -4,6 +4,9 @@ import {
   Invoice,
   formatAmount,
   formatHours,
+  hasRate,
+  lineAmount,
+  lineAmountBlank,
   num,
   totals,
 } from '@/lib/invoice';
@@ -15,7 +18,7 @@ function V({ value, fallback }: { value: string; fallback: string }) {
 }
 
 export default function InvoicePreview({ data }: { data: Invoice }) {
-  const t = totals(data.items);
+  const t = totals(data.items, data.rate);
   const cur = data.currency || '';
 
   return (
@@ -51,6 +54,12 @@ export default function InvoicePreview({ data }: { data: Invoice }) {
           <div className="inv__metaRow">
             <b>INVOICE NO.:</b> <V value={data.invoiceNo} fallback="[00000]" />
           </div>
+          {hasRate(data.rate) && (
+            <div className="inv__metaRow">
+              <b>RATE:</b> {cur}
+              {formatAmount(num(data.rate))} / hr
+            </div>
+          )}
         </div>
       </div>
 
@@ -117,10 +126,10 @@ export default function InvoicePreview({ data }: { data: Invoice }) {
                 <V value={item.billableHours} fallback="[0]" />
               </td>
               <td className="num">
-                {item.price.trim() ? (
-                  `${cur}${formatAmount(num(item.price))}`
-                ) : (
+                {lineAmountBlank(item, data.rate) ? (
                   <span className="ph">[0.00]</span>
+                ) : (
+                  `${cur}${formatAmount(lineAmount(item, data.rate))}`
                 )}
               </td>
             </tr>

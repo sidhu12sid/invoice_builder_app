@@ -77,6 +77,11 @@ create table if not exists public.clients (
   updated_at  timestamptz not null default now()
 );
 
+-- Hourly rate, kept as text for consistency with the app's other numeric
+-- inputs (they're all free-text and parsed on use).
+alter table public.clients
+  add column if not exists rate text not null default '';
+
 alter table public.clients enable row level security;
 
 drop policy if exists "own clients" on public.clients;

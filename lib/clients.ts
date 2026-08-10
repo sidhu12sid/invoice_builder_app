@@ -8,6 +8,8 @@ export type Client = {
   address: string;
   email: string;
   phone: string;
+  /** Hourly rate. Blank means bill by hand-entered amounts instead. */
+  rate: string;
 };
 
 const LOCAL_KEY = 'invoice-generator:clients';
@@ -18,6 +20,7 @@ export const emptyClient = (): Client => ({
   address: '',
   email: '',
   phone: '',
+  rate: '',
 });
 
 function readLocal(): Client[] {
@@ -46,11 +49,12 @@ export async function listClients(): Promise<Client[]> {
 
   const { data, error } = await sb
     .from('clients')
-    .select('id, name, address, email, phone')
+    .select('id, name, address, email, phone, rate')
     .order('name');
 
   if (error) throw error;
-  return (data ?? []) as Client[];
+  // rate arrived later than the other columns, so tolerate nulls.
+  return (data ?? []).map((row) => ({ ...row, rate: row.rate ?? '' })) as Client[];
 }
 
 /** Creates when `client.id` is blank, updates otherwise. Returns the id. */
@@ -81,6 +85,7 @@ export async function saveClient(client: Client): Promise<string> {
     address: client.address,
     email: client.email,
     phone: client.phone,
+    rate: client.rate,
   };
 
   if (client.id) {

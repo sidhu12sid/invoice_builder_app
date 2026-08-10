@@ -1,6 +1,13 @@
 'use client';
 
-import { Invoice, LineItem, emptyItem } from '@/lib/invoice';
+import {
+  Invoice,
+  LineItem,
+  emptyItem,
+  formatAmount,
+  hasRate,
+  lineAmount,
+} from '@/lib/invoice';
 import { Client } from '@/lib/clients';
 
 type Props = {
@@ -42,6 +49,8 @@ export default function InvoiceForm({
   clients,
   onPickClient,
 }: Props) {
+  const rateSet = hasRate(data.rate);
+
   const setItem = (id: string, patch: Partial<LineItem>) =>
     onChange({
       items: data.items.map((it) => (it.id === id ? { ...it, ...patch } : it)),
@@ -112,6 +121,21 @@ export default function InvoiceForm({
             onChange={(v) => onChange({ currency: v })}
           />
         </div>
+
+        <label className="field">
+          <span>Hourly rate</span>
+          <input
+            inputMode="decimal"
+            value={data.rate}
+            placeholder="Leave blank to enter prices by hand"
+            onChange={(e) => onChange({ rate: e.target.value })}
+          />
+        </label>
+        <p className="hint hint--tight">
+          {rateSet
+            ? 'Each line’s price is billable hours × rate.'
+            : 'Set a rate on a client and it fills in here automatically.'}
+        </p>
       </fieldset>
 
       <fieldset className="fieldset">
@@ -224,13 +248,23 @@ export default function InvoiceForm({
                 />
               </label>
               <label className="field">
-                <span>Price</span>
-                <input
-                  inputMode="decimal"
-                  value={item.price}
-                  placeholder="0.00"
-                  onChange={(e) => setItem(item.id, { price: e.target.value })}
-                />
+                <span>{rateSet ? 'Price (auto)' : 'Price'}</span>
+                {rateSet ? (
+                  <input
+                    readOnly
+                    tabIndex={-1}
+                    className="input--derived"
+                    value={formatAmount(lineAmount(item, data.rate))}
+                    title="Billable hours × rate"
+                  />
+                ) : (
+                  <input
+                    inputMode="decimal"
+                    value={item.price}
+                    placeholder="0.00"
+                    onChange={(e) => setItem(item.id, { price: e.target.value })}
+                  />
+                )}
               </label>
             </div>
           </div>

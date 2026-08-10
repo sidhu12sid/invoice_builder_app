@@ -569,6 +569,15 @@ select:disabled {
   cursor: not-allowed;
 }
 
+/* A value the app works out, not something you type. */
+.input--derived {
+  background: var(--navy-tint);
+  border-color: var(--line);
+  color: var(--navy);
+  font-weight: 600;
+  cursor: default;
+}
+
 .btn--tiny {
   padding: 3px 8px;
   font-size: 11px;

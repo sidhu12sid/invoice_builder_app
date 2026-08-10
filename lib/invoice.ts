@@ -18,6 +18,12 @@ export type Invoice = {
   invoicePeriod: string;
   invoiceNo: string;
   currency: string;
+  /**
+   * Hourly rate, copied from the client when one is picked. When set, each
+   * line's amount is billable hours × rate and the Price input goes read-only.
+   * Blank falls back to hand-entered prices.
+   */
+  rate: string;
 
   // Bill to
   clientCompany: string;
@@ -55,6 +61,7 @@ export const defaultInvoice: Invoice = {
   invoicePeriod: '',
   invoiceNo: '',
   currency: '₹',
+  rate: '',
 
   clientCompany: '',
   clientAddress: '',
@@ -84,12 +91,32 @@ export const formatAmount = (n: number) =>
 export const formatHours = (n: number) =>
   Number.isInteger(n) ? String(n) : n.toFixed(2);
 
-export function totals(items: LineItem[]) {
+/** True when a usable hourly rate is set. */
+export const hasRate = (rate: string) => num(rate) > 0;
+
+/**
+ * A line's amount — the single source of truth. With a rate set it's derived
+ * from billable hours; otherwise it's whatever was typed into Price.
+ */
+export function lineAmount(item: LineItem, rate: string): number {
+  return hasRate(rate)
+    ? num(item.billableHours) * num(rate)
+    : num(item.price);
+}
+
+/** True when the line has nothing to show an amount for yet. */
+export function lineAmountBlank(item: LineItem, rate: string): boolean {
+  return hasRate(rate)
+    ? item.billableHours.trim() === ''
+    : item.price.trim() === '';
+}
+
+export function totals(items: LineItem[], rate: string) {
   return items.reduce(
     (acc, it) => ({
       workingHours: acc.workingHours + num(it.workingHours),
       billableHours: acc.billableHours + num(it.billableHours),
-      price: acc.price + num(it.price),
+      price: acc.price + lineAmount(it, rate),
     }),
     { workingHours: 0, billableHours: 0, price: 0 }
   );
@@ -158,7 +185,13 @@ export function fillFromProfile<T extends Invoice>(
 /** Copies a saved client into the Bill To block. */
 export function applyClient<T extends Invoice>(
   invoice: T,
-  client: { name: string; address: string; email: string; phone: string }
+  client: {
+    name: string;
+    address: string;
+    email: string;
+    phone: string;
+    rate?: string;
+  }
 ): T {
   return {
     ...invoice,
@@ -166,6 +199,9 @@ export function applyClient<T extends Invoice>(
     clientAddress: client.address,
     clientEmail: client.email,
     clientPhone: client.phone,
+    // Copied, not linked: changing the client's rate later leaves already
+    // issued invoices at the rate they were billed at.
+    rate: client.rate ?? '',
   };
 }
 
