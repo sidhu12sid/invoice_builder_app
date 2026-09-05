@@ -1,5 +1,18 @@
 # Invoice Generator
 
+## User currencies
+
+Run [supabase/currencies-migration.sql](supabase/currencies-migration.sql) in the
+Supabase SQL Editor after the base schema and authentication migration. This adds
+per-user currencies, client currency defaults, and INR for existing and new users.
+Existing invoices keep their saved symbols; no invoice data is rewritten.
+
+Use **Currencies** in the sidebar to add a code, name, and symbol (for example,
+USD, US dollar, $). Choose a default currency when adding or editing a client.
+Selecting that client on Create invoice fills the currency and hourly rate in
+**Bill to**. Both can be overridden for that invoice. Selecting a currency changes
+the displayed denomination, not the numeric amount; there is no exchange-rate conversion.
+
 Form on the left, live A4 preview on the right. Save drafts, email the invoice
 as a PDF, or print it. Styling is taken from `Invoice_Template.docx` — same navy
 palette, Calibri, and layout.

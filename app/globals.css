@@ -988,6 +988,12 @@ tr.totalRow td {
 .authFields { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 14px; }
 .authRemember { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .authRemember input { width: auto; }
+.passwordControl { position: relative; }
+.passwordControl input { width: 100%; padding-right: 48px; }
+.passwordToggle svg { display: block; }
+.passwordToggle { position: absolute; right: 4px; top: 50%; transform: translateY(-50%); padding: 6px 10px; border: 0; border-radius: 4px; background: transparent; color: var(--navy); font: inherit; font-weight: 600; cursor: pointer; }
+.passwordToggle:focus-visible { outline: 2px solid var(--navy); outline-offset: 1px; }
+.passwordToggle:disabled { cursor: default; opacity: .5; }
 
 @media print {
   body {

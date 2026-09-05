@@ -10,6 +10,8 @@ export type Client = {
   phone: string;
   /** Hourly rate. Blank means bill by hand-entered amounts instead. */
   rate: string;
+  currency: string;
+  currencyCode: string;
 };
 
 const LOCAL_KEY = 'invoice-generator:clients';
@@ -21,13 +23,15 @@ export const emptyClient = (): Client => ({
   email: '',
   phone: '',
   rate: '',
+  currency: '₹',
+  currencyCode: 'INR',
 });
 
 function readLocal(): Client[] {
   try {
     const raw = localStorage.getItem(LOCAL_KEY);
     const list = raw ? (JSON.parse(raw) as Client[]) : [];
-    return Array.isArray(list) ? list : [];
+    return Array.isArray(list) ? list.map(c => ({ ...c, currency: c.currency ?? '₹', currencyCode: c.currencyCode ?? 'INR' })) : [];
   } catch {
     return [];
   }
@@ -49,12 +53,12 @@ export async function listClients(): Promise<Client[]> {
 
   const { data, error } = await sb
     .from('clients')
-    .select('id, name, address, email, phone, rate')
+    .select('id, name, address, email, phone, rate, currency, currency_code')
     .order('name');
 
   if (error) throw error;
   // rate arrived later than the other columns, so tolerate nulls.
-  return (data ?? []).map((row) => ({ ...row, rate: row.rate ?? '' })) as Client[];
+  return (data ?? []).map((row) => ({ ...row, rate: row.rate ?? '', currency: row.currency ?? '₹', currencyCode: row.currency_code ?? 'INR' })) as Client[];
 }
 
 /** Creates when `client.id` is blank, updates otherwise. Returns the id. */
@@ -86,6 +90,8 @@ export async function saveClient(client: Client): Promise<string> {
     email: client.email,
     phone: client.phone,
     rate: client.rate,
+    currency: client.currency,
+    currency_code: client.currencyCode,
   };
 
   if (client.id) {

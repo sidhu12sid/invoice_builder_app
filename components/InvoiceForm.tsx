@@ -9,11 +9,14 @@ import {
   lineAmount,
 } from '@/lib/invoice';
 import { Client } from '@/lib/clients';
+import type { Currency } from '@/lib/currencies';
+import CurrencySelect from './CurrencySelect';
 
 type Props = {
   data: Invoice;
   onChange: (patch: Partial<Invoice>) => void;
   clients: Client[];
+  currencies: Currency[];
   onPickClient: (client: Client) => void;
 };
 
@@ -47,6 +50,7 @@ export default function InvoiceForm({
   data,
   onChange,
   clients,
+  currencies,
   onPickClient,
 }: Props) {
   const rateSet = hasRate(data.rate);
@@ -114,28 +118,8 @@ export default function InvoiceForm({
             placeholder="MMM YYYY"
             onChange={(v) => onChange({ invoicePeriod: v })}
           />
-          <Text
-            label="Currency symbol"
-            value={data.currency}
-            placeholder="₹"
-            onChange={(v) => onChange({ currency: v })}
-          />
         </div>
 
-        <label className="field">
-          <span>Hourly rate</span>
-          <input
-            inputMode="decimal"
-            value={data.rate}
-            placeholder="Leave blank to enter prices by hand"
-            onChange={(e) => onChange({ rate: e.target.value })}
-          />
-        </label>
-        <p className="hint hint--tight">
-          {rateSet
-            ? 'Each line’s price is billable hours × rate.'
-            : 'Set a rate on a client and it fills in here automatically.'}
-        </p>
       </fieldset>
 
       <fieldset className="fieldset">
@@ -166,7 +150,7 @@ export default function InvoiceForm({
 
         <p className="hint hint--tight">
           {clients.length
-            ? 'Picking a client fills the four fields below.'
+            ? 'Picking a client fills their contact details, currency, and hourly rate.'
             : 'Add clients under “Clients” in the sidebar to pick them here.'}
         </p>
 
@@ -196,6 +180,25 @@ export default function InvoiceForm({
             onChange={(v) => onChange({ clientEmail: v })}
           />
         </div>
+        <CurrencySelect currencies={currencies} symbol={data.currency} code={data.currencyCode}
+          onChange={currency => onChange({ currency: currency.symbol, currencyCode: currency.code })} />
+        <p className="hint hint--tight">You can choose a different currency for this invoice. Amounts are not converted.</p>
+        <label className="field">
+          <span>Hourly rate</span>
+          <input
+            inputMode="decimal"
+            value={data.rate}
+            placeholder="Leave blank to enter prices by hand"
+            aria-describedby="invoice-rate-help"
+            onChange={(e) => onChange({ rate: e.target.value })}
+          />
+        </label>
+        <p id="invoice-rate-help" className="hint hint--tight">
+          Edit the client’s rate for this invoice. Changes here apply only to this invoice.
+          {rateSet
+            ? ' Each line’s price is billable hours × this rate.'
+            : ' Choose a client to fill their saved rate, or enter one. Leave blank for manual prices.'}
+        </p>
       </fieldset>
 
       <fieldset className="fieldset">

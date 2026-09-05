@@ -8,6 +8,8 @@ import ScaledPreview from './ScaledPreview';
 import SendDialog from './SendDialog';
 import Sidebar, { View } from './Sidebar';
 import ClientsView from './ClientsView';
+import CurrenciesView from './CurrenciesView';
+import { listCurrencies, addCurrency, type Currency } from '@/lib/currencies';
 import ProfileView from './ProfileView';
 import SavedInvoicesView from './SavedInvoicesView';
 
@@ -54,6 +56,8 @@ export default function InvoiceApp() {
   const [selectedSaved, setSelectedSaved] = useState<SavedInvoice | null>(null);
 
   const [clients, setClients] = useState<Client[]>([]);
+  const [currencies, setCurrencies] = useState<Currency[]>([]);
+  const [currencyError, setCurrencyError] = useState('');
   const [clientsLoading, setClientsLoading] = useState(false);
 
   const [profile, setProfile] = useState<Profile>(emptyProfile());
@@ -91,6 +95,11 @@ export default function InvoiceApp() {
   }, []);
 
   const signedIn = !isSupabaseConfigured || Boolean(session);
+  const refreshCurrencies = useCallback(async () => {
+    try { setCurrencies(await listCurrencies()); setCurrencyError(''); }
+    catch { setCurrencyError('Could not load currencies. Apply supabase/currencies-migration.sql if this feature has not been set up.'); }
+  }, []);
+  useEffect(() => { if (signedIn) void refreshCurrencies(); }, [signedIn, refreshCurrencies]);
   const draftKey = isSupabaseConfigured ? (session ? `${DRAFT_KEY}:${session.user.id}` : null) : DRAFT_KEY;
 
   /* --------------------------------------------------------- sidebar -- */
@@ -355,6 +364,11 @@ export default function InvoiceApp() {
       />
 
       <main className="shell__main">
+        {currencyError && view !== 'currencies' && <p className="msg msg--error" role="alert">{currencyError}</p>}
+        {view === 'currencies' && <CurrenciesView currencies={currencies} error={currencyError} onAdd={async currency => {
+          await addCurrency(currency);
+          await refreshCurrencies();
+        }} />}
         {view === 'saved' && (
           <SavedInvoicesView
             items={saved}
@@ -382,6 +396,7 @@ export default function InvoiceApp() {
         {view === 'clients' && (
           <ClientsView
             clients={clients}
+            currencies={currencies}
             loading={clientsLoading}
             onSave={handleSaveClient}
             onDelete={handleDeleteClient}
@@ -403,6 +418,7 @@ export default function InvoiceApp() {
                 data={data}
                 onChange={update}
                 clients={clients}
+                currencies={currencies}
                 onPickClient={(client) =>
                   setData((prev) => applyClient(prev, client))
                 }

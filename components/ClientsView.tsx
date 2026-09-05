@@ -2,9 +2,12 @@
 
 import { useState } from 'react';
 import { Client, emptyClient } from '@/lib/clients';
+import type { Currency } from '@/lib/currencies';
+import CurrencySelect from './CurrencySelect';
 
 type Props = {
   clients: Client[];
+  currencies: Currency[];
   loading: boolean;
   onSave: (client: Client) => Promise<void>;
   onDelete: (client: Client) => Promise<void>;
@@ -12,6 +15,7 @@ type Props = {
 
 export default function ClientsView({
   clients,
+  currencies,
   loading,
   onSave,
   onDelete,
@@ -95,6 +99,8 @@ export default function ClientsView({
             />
           </label>
 
+          <CurrencySelect currencies={currencies} symbol={draft.currency} code={draft.currencyCode}
+            onChange={currency => set({ currency: currency.symbol, currencyCode: currency.code })} />
           <label className="field">
             <span>Hourly rate</span>
             <input
@@ -161,7 +167,7 @@ export default function ClientsView({
                     )}
                     {client.rate.trim() && (
                       <span className="saved__date">
-                        Rate: {client.rate} / hr
+                        Rate: {client.currency} {client.rate} / hr ({client.currencyCode})
                       </span>
                     )}
                     {client.address && (

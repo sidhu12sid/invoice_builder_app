@@ -18,6 +18,7 @@ export type Invoice = {
   invoicePeriod: string;
   invoiceNo: string;
   currency: string;
+  currencyCode?: string;
   /**
    * Hourly rate, copied from the client when one is picked. When set, each
    * line's amount is billable hours × rate and the Price input goes read-only.
@@ -191,6 +192,8 @@ export function applyClient<T extends Invoice>(
     email: string;
     phone: string;
     rate?: string;
+    currency?: string;
+    currencyCode?: string;
   }
 ): T {
   return {
@@ -202,6 +205,8 @@ export function applyClient<T extends Invoice>(
     // Copied, not linked: changing the client's rate later leaves already
     // issued invoices at the rate they were billed at.
     rate: client.rate ?? '',
+    currency: client.currency ?? invoice.currency,
+    currencyCode: client.currencyCode ?? (client.currency ? undefined : invoice.currencyCode),
   };
 }
 

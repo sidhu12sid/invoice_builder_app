@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import PasswordField from './PasswordField';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 export default function PasswordRecoveryForm({ reset = false }: { reset?: boolean }) {
@@ -70,8 +71,8 @@ export default function PasswordRecoveryForm({ reset = false }: { reset?: boolea
     {(!reset || verification === 'ready') && <fieldset disabled={busy} className="authFields">
       {!reset && <label className="field"><span>Email</span><input type="email" required maxLength={254} autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} /></label>}
       {reset && <>
-        <label className="field"><span>New password</span><input type="password" required minLength={12} maxLength={128} autoComplete="new-password" value={password} onChange={e => setPassword(e.target.value)} /><small>Use 12–128 characters and a password you haven’t used before.</small></label>
-        <label className="field"><span>Confirm new password</span><input type="password" required minLength={12} maxLength={128} autoComplete="new-password" value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} /></label>
+        <PasswordField label="New password" minLength={12} autoComplete="new-password" value={password} onChange={setPassword} hint="Use 12–128 characters and a password you haven’t used before." />
+        <PasswordField label="Confirm new password" minLength={12} autoComplete="new-password" value={confirmPassword} onChange={setConfirmPassword} />
       </>}
       <button className="btn authSubmit" disabled={busy || (!reset && cooldown > 0)}>{busy ? 'Please wait…' : reset ? 'Save new password' : cooldown ? `Resend link in ${cooldown}s` : 'Send reset link'}</button>
     </fieldset>}

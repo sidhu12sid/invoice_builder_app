@@ -1,9 +1,10 @@
 'use client';
 
-export type View = 'create' | 'saved' | 'clients' | 'profile';
+export type View = 'create' | 'saved' | 'clients' | 'currencies' | 'profile';
 
 /** Small inline icons so the collapsed rail still reads at a glance. */
 const ICONS: Record<View, React.ReactNode> = {
+  currencies: <><circle cx="12" cy="12" r="9" /><path d="M15 8h-5a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H9M12 6v12" /></>,
   create: (
     <>
       <path d="M14 2H6v20h12V7z" />
@@ -34,6 +35,7 @@ const ITEMS: { id: View; label: string; hint: string }[] = [
   { id: 'create', label: 'Create invoice', hint: 'Fill in a new invoice' },
   { id: 'saved', label: 'Saved invoices', hint: 'View, print, email' },
   { id: 'clients', label: 'Clients', hint: 'People you bill' },
+  { id: 'currencies', label: 'Currencies', hint: 'Currencies you invoice in' },
   { id: 'profile', label: 'My details', hint: 'Your name and bank details' },
 ];
 

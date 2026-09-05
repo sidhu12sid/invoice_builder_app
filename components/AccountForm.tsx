@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import PasswordField from './PasswordField';
 import { useEffect, useState, type FormEvent } from 'react';
 
 export default function AccountForm({ mode }: { mode: 'login' | 'signup' | 'verify' }) {
@@ -72,8 +73,8 @@ export default function AccountForm({ mode }: { mode: 'login' | 'signup' | 'veri
         <label className="field"><span>Last name</span><input required maxLength={100} autoComplete="family-name" value={lastName} onChange={e => setLastName(e.target.value)} /></label>
       </>}
       <label className="field"><span>Email</span><input type="email" required maxLength={254} autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} /></label>
-      {mode !== 'verify' && <label className="field"><span>Password</span><input type="password" required minLength={mode === 'signup' ? 12 : 1} maxLength={128} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} value={password} onChange={e => setPassword(e.target.value)} />{mode === 'signup' && <small>Use at least 12 characters.</small>}</label>}
-      {mode === 'signup' && <label className="field"><span>Confirm password</span><input type="password" required maxLength={128} autoComplete="new-password" value={confirm} onChange={e => setConfirm(e.target.value)} /></label>}
+      {mode !== 'verify' && <PasswordField label="Password" minLength={mode === 'signup' ? 12 : 1} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} value={password} onChange={setPassword} hint={mode === 'signup' ? 'Use at least 12 characters.' : undefined} />}
+      {mode === 'signup' && <PasswordField label="Confirm password" autoComplete="new-password" value={confirm} onChange={setConfirm} />}
       {mode === 'verify' && <label className="field"><span>Verification code</span><input required inputMode="numeric" pattern="[0-9]{6,10}" maxLength={10} autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))} /></label>}
       {mode === 'login' && <label className="authRemember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Remember me for 45 days</label>}
       <button className="btn authSubmit" disabled={busy}>{busy ? 'Please wait…' : mode === 'signup' ? 'Create account' : mode === 'verify' ? 'Verify OTP and continue' : 'Sign in'}</button>
