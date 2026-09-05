@@ -21,6 +21,7 @@ export async function GET(_request: Request, context: { params: Promise<{ action
 export async function POST(request: Request, context: { params: Promise<{ action: string }> }) {
   if (request.headers.get('origin') !== new URL(request.url).origin) return reply({ error: 'Invalid request origin.' }, 403);
   const { action } = await context.params;
+  let stage = 'request';
   try {
     if (action === 'logout') {
       try {
@@ -45,6 +46,7 @@ export async function POST(request: Request, context: { params: Promise<{ action
     }
     const email = typeof body.email === 'string' ? body.email.trim() : '';
     if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return reply({ error: 'Enter a valid email address.' }, 400);
+    stage = 'supabase-client';
     const sb = authClient();
     if (action === 'resend') {
       const { error } = await sb.auth.resend({ type: 'signup', email });
@@ -79,16 +81,30 @@ export async function POST(request: Request, context: { params: Promise<{ action
       return reply({ ok: true });
     }
     if (typeof body.remember !== 'boolean') return reply({ error: 'Invalid login request.' }, 400);
+    stage = 'password-login';
     const { data, error } = await sb.auth.signInWithPassword({ email, password });
-    if (error || !data.session || !data.user.email_confirmed_at) return reply({ error: 'Unable to sign in. Check your email and password, and verify your email first.' }, 401);
+    if (error?.status && error.status >= 500) return reply({ error: 'Cannot reach the authentication service. Please try again shortly.', code: 'AUTH_SERVICE_UNAVAILABLE' }, 503);
+    if (error || !data.session || !data.user?.email_confirmed_at) return reply({ error: 'Unable to sign in. Check your email and password, and verify your email first.' }, 401);
+    stage = 'account-lookup';
     const { data: account, error: dbError } = await sb.from('users').select('is_active').eq('id', data.user.id).maybeSingle();
     if (dbError || !account?.is_active) {
-      await sb.auth.signOut({ scope: 'local' });
+      await sb.auth.signOut({ scope: 'local' }).catch(() => undefined);
       return reply({ error: dbError ? 'User database is not ready. Apply the authentication migration.' : 'This account is inactive. Contact the administrator.' }, dbError ? 503 : 403);
     }
+    stage = 'session-cookie';
     await startSession(data.session, body.remember);
     return reply({ ok: true });
-  } catch {
-    return reply({ error: 'Authentication is unavailable. Please try again later.' }, 503);
+  } catch (error) {
+    const incident = crypto.randomUUID();
+    // Do not log error messages/objects: provider messages can contain personal data.
+    console.error('Authentication failure', { incident, action, stage,
+      errorType: error instanceof Error ? error.name : 'UnknownError' });
+    const message = error instanceof Error ? error.message : '';
+    const configuration = message === 'AUTH_SESSION_SECRET must be a 32-byte hexadecimal secret.'
+      ? 'Login session configuration is missing or invalid. Set AUTH_SESSION_SECRET on the running server and restart or redeploy.'
+      : message === 'Supabase authentication is not configured.'
+        ? 'Supabase configuration is missing on the running server. Set its URL and publishable key, then restart or redeploy.'
+        : `Authentication failed during ${stage}. Please share the reference below with the administrator.`;
+    return reply({ error: configuration, code: 'AUTH_SERVER_ERROR', stage, reference: incident }, 503);
   }
 }
