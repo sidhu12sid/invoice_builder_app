@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { Invoice, formatAmount, totals } from '@/lib/invoice';
 import { blobToBase64, pdfFilename, renderInvoicePdf } from '@/lib/pdf';
-import { getSupabase } from '@/lib/supabase';
 
 type Props = {
   data: Invoice;
@@ -58,14 +57,10 @@ export default function SendDialog({ data, onClose, onSent }: Props) {
       const blob = await renderInvoicePdf();
       const pdfBase64 = await blobToBase64(blob);
 
-      const token = (await getSupabase()?.auth.getSession())?.data.session
-        ?.access_token;
-
       const res = await fetch('/api/send-invoice', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
         body: JSON.stringify({
           to,

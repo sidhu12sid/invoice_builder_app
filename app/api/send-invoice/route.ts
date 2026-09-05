@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { readSession } from '@/lib/auth-server';
 import { MailError, sendInvoiceMail } from '@/lib/mailer';
 
 export const runtime = 'nodejs';
@@ -24,25 +24,11 @@ type Payload = {
 const bad = (message: string, status = 400) =>
   NextResponse.json({ error: message }, { status });
 
-/**
- * When Supabase is configured the app is potentially reachable by others, so
- * a valid session is required — otherwise this route would be an open relay
- * for anyone who found the URL. Local-only installs have no auth to check.
- */
+/** Email requires a verified, active account and a same-origin session. */
 async function authorize(request: Request): Promise<string | null> {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey =
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY ||
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) return null;
-
-  const token = request.headers.get('authorization')?.replace(/^Bearer /i, '');
-  if (!token) return 'Not signed in.';
-
-  const { data, error } = await createClient(url, anonKey).auth.getUser(token);
-  if (error || !data.user) return 'Session expired — sign in again.';
-
-  return null;
+  if (request.headers.get('origin') !== new URL(request.url).origin) return 'Invalid request origin.';
+  try { return await readSession(true) ? null : 'Session expired — sign in again.'; }
+  catch { return 'Authentication is unavailable.'; }
 }
 
 export async function POST(request: Request) {

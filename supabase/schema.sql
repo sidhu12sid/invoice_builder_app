@@ -1,6 +1,7 @@
 -- Run this in the Supabase dashboard → SQL Editor → New query.
 -- Safe to re-run: every statement is idempotent, so use this same file to
 -- upgrade a database created by an earlier version.
+-- Then run auth-migration.sql for signup, verification and account access rules.
 
 create table if not exists public.invoices (
   id          uuid primary key default gen_random_uuid(),

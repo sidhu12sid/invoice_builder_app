@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "test:auth": "node --experimental-strip-types --test scripts/test-auth.mjs scripts/test-password-recovery.mjs",
     "lint": "next lint",
     "check:supabase": "node --env-file-if-exists=.env.local scripts/check-supabase.mjs",
     "check:email": "node --experimental-strip-types --no-warnings=ExperimentalWarning --env-file-if-exists=.env.local scripts/check-email.mts"

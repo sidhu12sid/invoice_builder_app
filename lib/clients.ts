@@ -1,6 +1,6 @@
 'use client';
 
-import { getSupabase } from './supabase';
+import { getSupabase, getLoginSession } from './supabase';
 
 export type Client = {
   id: string;
@@ -77,7 +77,7 @@ export async function saveClient(client: Client): Promise<string> {
     return id;
   }
 
-  const { data: user } = await sb.auth.getUser();
+  const user = { user: (await getLoginSession())?.user };
   if (!user.user) throw new Error('Not signed in.');
 
   const row = {

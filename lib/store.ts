@@ -1,7 +1,7 @@
 'use client';
 
 import { Invoice } from './invoice';
-import { getSupabase, isSupabaseConfigured } from './supabase';
+import { getSupabase, getLoginSession, isSupabaseConfigured } from './supabase';
 
 export type InvoiceStatus = 'draft' | 'final' | 'sent';
 
@@ -118,7 +118,7 @@ export async function saveInvoice(
     return newId;
   }
 
-  const { data: user } = await sb.auth.getUser();
+  const user = { user: (await getLoginSession())?.user };
   if (!user.user) throw new Error('Not signed in.');
 
   if (id) {

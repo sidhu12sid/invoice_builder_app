@@ -985,6 +985,10 @@ tr.totalRow td {
   margin: 12mm;
 }
 
+.authFields { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 14px; }
+.authRemember { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+.authRemember input { width: auto; }
+
 @media print {
   body {
     background: #fff;

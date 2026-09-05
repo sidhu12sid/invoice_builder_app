@@ -1,6 +1,6 @@
 'use client';
 
-import { getSupabase } from './supabase';
+import { getSupabase, getLoginSession } from './supabase';
 
 /** The "from" block and payment details, reused on every invoice. */
 export type Profile = {
@@ -68,7 +68,7 @@ export async function saveProfile(profile: Profile): Promise<void> {
     return;
   }
 
-  const { data: user } = await sb.auth.getUser();
+  const user = { user: (await getLoginSession())?.user };
   if (!user.user) throw new Error('Not signed in.');
 
   // user_id is the primary key, so this updates in place rather than

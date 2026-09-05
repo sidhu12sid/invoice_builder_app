@@ -122,14 +122,9 @@ This checks the URL format, catches a secret key pasted by mistake, confirms the
 table exists, and confirms RLS is actually blocking anonymous reads. Fix
 anything it reports before moving on.
 
-**6. Turn off email confirmation** (optional, recommended for a single-user
-tool). **Authentication → Sign In / Providers → Email**, switch off **Confirm
-email**. Otherwise you'll need to click a link in your inbox before the first
-sign-in.
+**6. Configure authentication.** Follow [AUTH_SETUP.md](AUTH_SETUP.md): apply the user migration, keep email confirmation enabled, set the OTP email template, and configure the session secret.
 
-**7. Start the app.** `npm run dev`, then use **Create one** on the sign-in
-screen to make your account. Save an invoice, then check **Table Editor →
-invoices** in the dashboard — your row should be there.
+**7. Start the app.** Run npm run dev, open /signup, verify the emailed code, then sign in at /login.
 
 Restart the dev server after any `.env.local` change; Next.js only reads it at
 startup.
@@ -148,7 +143,7 @@ key and your data is the RLS policy in `schema.sql`, which scopes every row to
 | Sign-in screen never appears, badge says "This browser only" | `.env.local` missing or not picked up — restart the dev server |
 | `relation "public.invoices" does not exist` | Step 2 wasn't run, or was run on a different project |
 | `Invalid API key` | Key belongs to another project, or was truncated when copied |
-| Sign-up succeeds but sign-in fails | Email confirmation is on — check your inbox, or turn it off in step 6 |
+| Sign-up succeeds but sign-in fails | Check your inbox and verify the code at /verify-email |
 | Saved invoices vanish after a week away | The free-plan pause below — resume the project in the dashboard |
 
 ### The free-plan pause
@@ -346,47 +341,12 @@ text, use **Print → Save as PDF** instead.
 | `components/InvoicePreview.tsx` | The A4 sheet |
 | `components/SavedList.tsx` | Saved-invoice sidebar |
 | `components/SendDialog.tsx` | Email composer |
-| `components/AuthPanel.tsx` | Sign in / sign up |
+| `components/AccountForm.tsx` | Sign in / sign up |
 | `app/globals.css` | Template styling and print rules |
 
 ## How authentication works
 
-Supabase Auth, email + password. No OAuth, no magic links.
-
-| Step | Where |
-| --- | --- |
-| Sign up / sign in | `components/AuthPanel.tsx` → `auth.signUp()` / `auth.signInWithPassword()` |
-| Session stored | `localStorage`, by supabase-js (`persistSession: true`) |
-| Token refresh | Automatic (`autoRefreshToken: true`) |
-| React state | `InvoiceApp` reads `auth.getSession()` on mount, subscribes to `onAuthStateChange` |
-| Signed out | `<AuthPanel />` renders instead of the app |
-
-**The sign-in screen is UX, not the security boundary.** The page is public
-static HTML; the gate only decides what to render. The real boundary is Postgres:
-
-- Every query from the browser carries the user's JWT.
-- The RLS policy `using (auth.uid() = user_id)` filters rows to that user, so
-  the publishable key alone returns nothing.
-- `with check (auth.uid() = user_id)` stops anyone writing rows owned by
-  someone else.
-
-The one server-side check is `/api/send-invoice`. The browser sends
-`Authorization: Bearer <access_token>`; the route calls `auth.getUser(token)`,
-which validates it against the Auth server. Without that, the route would be an
-open mail relay for anyone who found the URL.
-
-With no Supabase env vars there is no auth at all — localStorage mode, and the
-send route has nothing to verify against. Fine locally, not fine on a public URL.
-
-### Known gaps
-
-- **No password reset UI.** `resetPasswordForEmail` isn't wired up; if you
-  forget the password, reset it from **Authentication → Users** in the
-  dashboard.
-- **Sessions live in `localStorage`**, so any XSS on the page could read them.
-  The Next-idiomatic upgrade is `@supabase/ssr` with httpOnly cookies, which
-  also enables server-rendered protected pages and middleware. Worth doing if
-  this ever becomes multi-user or public-facing.
+See [AUTH_SETUP.md](AUTH_SETUP.md) for setup, the user schema, email verification, secure cookies, and session expiry. Signup requires email verification before password login. Remember me lasts up to 45 days; otherwise sessions last up to 12 hours. The email API requires an authenticated active account.
 
 ## Deploying to Vercel
 
@@ -410,6 +370,7 @@ leave them alone. Don't deploy yet.
 | --- | --- |
 | `NEXT_PUBLIC_SUPABASE_URL` | `https://abcdefgh.supabase.co` |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | `sb_publishable_...` |
+| `AUTH_SESSION_SECRET` | Server-only 64-character hex secret; see AUTH_SETUP.md |
 | `MAIL_FROM` | `Your Name <invoices@yourdomain.com>` |
 | `RESEND_API_KEY` | `re_...` (or `BREVO_API_KEY`, or the `SMTP_*` set) |
 

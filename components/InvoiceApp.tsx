@@ -1,11 +1,10 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import type { Session } from '@supabase/supabase-js';
+import type { User } from '@supabase/supabase-js';
 
 import InvoiceForm from './InvoiceForm';
 import ScaledPreview from './ScaledPreview';
-import AuthPanel from './AuthPanel';
 import SendDialog from './SendDialog';
 import Sidebar, { View } from './Sidebar';
 import ClientsView from './ClientsView';
@@ -21,7 +20,7 @@ import {
   nextInvoiceNo,
 } from '@/lib/invoice';
 import { downloadInvoicePdf } from '@/lib/pdf';
-import { getSupabase, isSupabaseConfigured } from '@/lib/supabase';
+import { getLoginSession, isSupabaseConfigured } from '@/lib/supabase';
 import {
   InvoiceStatus,
   SavedInvoice,
@@ -47,7 +46,7 @@ export default function InvoiceApp() {
   const [data, setData] = useState<Invoice>(defaultInvoice);
   const [currentId, setCurrentId] = useState<string | null>(null);
 
-  const [session, setSession] = useState<Session | null>(null);
+  const [session, setSession] = useState<{ user: User } | null>(null);
   const [authReady, setAuthReady] = useState(!isSupabaseConfigured);
 
   const [saved, setSaved] = useState<SavedInvoice[]>([]);
@@ -69,23 +68,30 @@ export default function InvoiceApp() {
   /* ---------------------------------------------------------- session -- */
 
   useEffect(() => {
-    const sb = getSupabase();
-    if (!sb) return;
-
-    sb.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setAuthReady(true);
-    });
-
-    const { data: sub } = sb.auth.onAuthStateChange((_event, next) => {
-      setSession(next);
-      setAuthReady(true);
-    });
-
-    return () => sub.subscription.unsubscribe();
+    if (!isSupabaseConfigured) return;
+    let cancelled = false;
+    const check = async () => {
+      try {
+        const result = await getLoginSession();
+        if (cancelled) return;
+        if (!result) { window.location.replace('/login'); return; }
+        setSession(previous => {
+          if (previous && previous.user.id !== result.user.id) {
+            window.location.reload();
+            return previous;
+          }
+          return result;
+        });
+        setAuthReady(true);
+      } catch (err) { if (!cancelled) setError(err instanceof Error ? err.message : 'Unable to check session.'); }
+    };
+    void check();
+    const timer = setInterval(check, 60_000);
+    return () => { cancelled = true; clearInterval(timer); };
   }, []);
 
   const signedIn = !isSupabaseConfigured || Boolean(session);
+  const draftKey = isSupabaseConfigured ? (session ? `${DRAFT_KEY}:${session.user.id}` : null) : DRAFT_KEY;
 
   /* --------------------------------------------------------- sidebar -- */
 
@@ -109,8 +115,9 @@ export default function InvoiceApp() {
 
   // Restore unsaved work after hydration so server and client markup match.
   useEffect(() => {
+    if (!draftKey) return;
     try {
-      const raw = localStorage.getItem(DRAFT_KEY);
+      const raw = localStorage.getItem(draftKey);
       if (raw) {
         const parsed = JSON.parse(raw);
         setData({ ...defaultInvoice, ...parsed.data });
@@ -120,19 +127,19 @@ export default function InvoiceApp() {
       /* ignore unreadable drafts */
     }
     setDraftLoaded(true);
-  }, []);
+  }, [draftKey]);
 
   // Gated on the restore above: without the gate this effect runs on the very
   // first render with the *default* invoice still in state and overwrites the
   // stored draft before it has been read back.
   useEffect(() => {
-    if (!draftLoaded) return;
+    if (!draftLoaded || !draftKey) return;
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify({ data, id: currentId }));
+      localStorage.setItem(draftKey, JSON.stringify({ data, id: currentId }));
     } catch {
       /* storage blocked — the preview still works */
     }
-  }, [data, currentId, draftLoaded]);
+  }, [data, currentId, draftLoaded, draftKey]);
 
   /* -------------------------------------------------------- data load -- */
 
@@ -320,18 +327,20 @@ export default function InvoiceApp() {
   };
 
   const handleSignOut = async () => {
-    await getSupabase()?.auth.signOut();
+    const response = await fetch('/api/auth/logout', { method: 'POST' });
+    if (!response.ok) { setError('Sign out failed. Please try again.'); return; }
     setSaved([]);
     setClients([]);
     setSelectedSaved(null);
     setProfile(emptyProfile());
     setCurrentId(null);
+    window.location.replace('/login');
   };
 
   /* ------------------------------------------------------------ views -- */
 
-  if (!authReady) return <p className="bootMsg">Loading…</p>;
-  if (!signedIn) return <AuthPanel />;
+  if (!authReady) return <p className="bootMsg" role="status">{error || 'Loading…'}</p>;
+  if (!signedIn) return <p className="bootMsg">Redirecting to sign in…</p>;
 
   return (
     <div className={`shell${collapsed ? ' is-collapsed' : ''}`}>
