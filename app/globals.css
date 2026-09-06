@@ -627,6 +627,54 @@ select:disabled {
 
 /* --------------------------------------------------------------- auth --- */
 
+.accountLayout { min-height: 100dvh; display: grid; grid-template-columns: 1fr 1fr; background: #fff; color: #172d30; font-family: Arial, sans-serif; }
+.accountMain { padding: 38px clamp(28px, 7vw, 110px) 24px; display: flex; flex-direction: column; min-width: 0; }
+.accountBrand { display: flex; align-items: center; gap: 12px; color: #0a3e43; font-size: 21px; font-weight: 700; letter-spacing: -.6px; }
+.accountBrandMark { width: 38px; height: 40px; border-radius: 11px; background: #0a3e43; color: #d3f5ea; display: grid; place-items: center; }
+.accountFormSlot { flex: 1; display: flex; align-items: center; padding: 48px 0; }
+.accountLayout .authCard { width: 100%; max-width: 460px; margin: auto; padding: 0; border: none; border-radius: 0; box-shadow: none; background: transparent; }
+.accountStep { font-size: 10px; letter-spacing: 2px; color: #6b8587; font-weight: 700; margin: 0 0 16px; }
+.accountLayout .appTitle { font-size: clamp(28px, 2.6vw, 38px); letter-spacing: -1.2px; font-weight: 600; color: #152b2d; margin: 0 0 14px; }
+.accountLayout .appSub { font-size: 15px; line-height: 1.7; margin: 0 0 30px; color: #657275; }
+.accountLayout .authFields { gap: 19px; }
+.accountLayout .field { margin: 0; }
+.accountLayout .field > span, .accountLayout .field > label { display: block; color: #344447; font-size: 13px; margin-bottom: 8px; }
+.accountLayout input:not([type=checkbox]) { min-height: 50px; padding: 12px 14px; border-radius: 9px; border-color: #dce3e3; font-size: 14px; }
+.accountLayout .passwordControl input { padding-right: 48px; }
+.accountLayout input:focus { border-color: #21717a; outline: 3px solid #e4f2ef; }
+.accountLayout small { display: block; color: #748184; font-size: 11px; margin-top: 6px; line-height: 1.5; }
+.accountLayout a, .accountLayout .linkBtn { color: #14616a; text-decoration: none; }
+.accountLayout a:hover, .accountLayout .linkBtn:hover { text-decoration: underline; }
+.accountOptions { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 12px; }
+.accountLayout .authRemember { font-size: 12px; color: #647477; }
+.accountLayout input[type=checkbox] { accent-color: #0b464b; }
+.accountLayout .authSubmit { min-height: 51px; margin-top: 4px; border-radius: 9px; border-color: #0a3e43; background: #0a3e43; color: #fff; font-size: 14px; }
+.accountLayout .authSubmit:hover { background: #12535a; }
+.accountLayout .authSwap { margin-top: 25px; padding-top: 23px; border-top: 1px solid #e9eded; text-align: center; font-size: 13px; }
+.accountNames { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.accountLayout .accountOtp { font-size: 23px; letter-spacing: 5px; text-align: center; }
+.accountLayout .accountOtp::placeholder { font-size: 14px; letter-spacing: 1px; }
+.accountFooter { font-size: 11px; color: #879494; margin: 0; }
+.accountFeature { position: relative; overflow: hidden; display: flex; align-items: center; padding: 64px clamp(30px, 5vw, 80px); background: radial-gradient(ellipse at 100% 5%, #458180 0, transparent 58%), #083c42; color: #fff; }
+.accountFeatureInner { width: 100%; max-width: 570px; margin: auto; position: relative; }
+.accountEyebrow { color: #a0d4cf; font-size: 10px; letter-spacing: 2.5px; }
+.accountFeature h2 { font-size: clamp(34px, 3.8vw, 58px); line-height: 1.16; letter-spacing: -2px; font-weight: 400; margin: 25px 0; }
+.accountFeatureCopy { font-size: 16px; color: #c3dcda; line-height: 1.8; max-width: 460px; }
+.accountIllustration { position: relative; margin: 42px 20px 42px 0; }
+.accountPaper { max-width: 355px; background: #f7fbf9; color: #17464a; border-radius: 12px; padding: 27px; transform: rotate(-4deg); box-shadow: 0 25px 50px #001d2438; }
+.accountPaperTop { display: flex; justify-content: space-between; font-size: 11px; letter-spacing: 2px; margin-bottom: 24px; }
+.accountPaperLine { width: 42%; height: 6px; background: #d2dfdc; margin: 8px 0; border-radius: 3px; }
+.accountPaperLine.short { width: 27%; }
+.accountPaperTable { display: grid; grid-template-columns: 1fr auto; gap: 17px; border-top: 1px solid #dce6e3; margin-top: 24px; padding-top: 18px; font-size: 11px; }
+.accountPaperBottom { margin-top: 24px; padding-top: 15px; border-top: 1px solid #dce6e3; display: flex; justify-content: space-between; font-size: 10px; }
+.accountFloat { position: absolute; bottom: 14px; right: 0; border: 1px solid #ffffff35; background: #18595d; box-shadow: 0 10px 30px #002a3a40; padding: 15px 19px; border-radius: 10px; font-size: 12px; }
+.accountFloat span { color: #b4e8d0; margin-right: 9px; }
+.accountBenefits { display: flex; flex-wrap: wrap; gap: 12px 20px; color: #bad4d1; font-size: 10px; }
+.accountBenefits span::before { content: '✓'; color: #9fdec8; margin-right: 6px; }
+@media (max-width: 900px) { .accountLayout { grid-template-columns: 1.1fr 1fr; } .accountMain { padding: 30px; } .accountFeature { padding: 35px; } .accountFeature h2 { font-size: 36px; } }
+@media (max-width: 700px) { .accountLayout { display: block; } .accountMain { min-height: 100dvh; padding: 26px 24px 20px; } .accountFeature { display: none; } .accountFormSlot { padding: 40px 0; } .accountBrand { font-size: 19px; } }
+@media (max-width: 380px) { .accountNames { grid-template-columns: 1fr; } }
+
 .authWrap {
   display: flex;
   justify-content: center;
@@ -984,6 +1032,59 @@ tr.totalRow td {
   size: A4;
   margin: 12mm;
 }
+
+/* Workspace theme follows the account pages; the A4 document keeps its template. */
+.shell { --navy: #0a3e43; --navy-tint: #e2f1ec; --muted: #6b7c7d; --line: #d6e3df; --page-bg: #f3f7f5; --panel-border: #dfe8e4; --text: #243b3e; background: var(--page-bg); font-family: Arial, sans-serif; }
+.shell .sheet { --navy: #1f3864; --navy-tint: #d9e2f3; --muted: #595959; --line: #c9d3e6; --text: #1b2333; font-family: Calibri, 'Segoe UI', sans-serif; }
+.workspaceHeading { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 32px 32px 0; max-width: 1600px; margin: auto; }
+.workspaceEyebrow { font-size: 10px; letter-spacing: 2px; color: #6f8b88; font-weight: 700; margin: 0 0 8px; }
+.workspaceHeading h1 { font-size: 29px; letter-spacing: -1px; font-weight: 600; margin: 0 0 8px; color: #163c3f; }
+.workspaceHeading p:not(.workspaceEyebrow) { margin: 0; color: #738481; font-size: 13px; line-height: 1.6; }
+.workspaceStatus { display: inline-flex; align-items: center; gap: 8px; white-space: nowrap; border: 1px solid #d6e7df; background: #eaf4ee; border-radius: 24px; color: #3b7160; padding: 8px 12px; font-size: 11px; }
+.workspaceStatus > span { width: 6px; height: 6px; border-radius: 50%; background: #459d79; }
+.workspacePanelHeading { padding-bottom: 20px; margin-bottom: 18px; border-bottom: 1px solid #e6eeea; }
+.workspacePanelHeading h2 { margin: 0 0 5px; font-size: 17px; font-weight: 600; color: #173e42; letter-spacing: -.3px; }
+.workspacePanelHeading > span { color: #83928f; font-size: 11px; }
+.shell .sidebar { background: radial-gradient(ellipse at 100% 0%, #276367, transparent 65%), #093b41; padding: 26px 16px; gap: 30px; }
+.shell .sidebar__brand { font-size: 16px; letter-spacing: -.4px; }
+.shell .sidebar__toggle { border-radius: 9px; }
+.shell .sidebar__nav { gap: 8px; }
+.shell .sidebar__link { border-radius: 11px; padding: 13px 12px; gap: 12px; color: #bfd6d4; transition: background .15s, color .15s; }
+.shell .sidebar__link.is-active { background: #eaf5ef; color: #0a464b; box-shadow: 0 5px 15px #012a3120; }
+.shell .sidebar__label { font-size: 13px; }
+.shell .sidebar__hint { margin-top: 4px; font-size: 10px; opacity: .8; }
+.shell .sidebar__foot { padding-top: 18px; border-top: 1px solid #ffffff20; gap: 12px; }
+.shell .sidebar__foot .badge { background: #ffffff12; color: #d3e8e3; border-radius: 8px; padding: 9px; font-size: 10px; }
+.shell .card, .shell .pane--form { border-radius: 16px; border-color: #dfe8e4; box-shadow: 0 5px 22px #1d4e3c05; padding: 24px; }
+.shell .fieldset { border: 0; border-bottom: 1px solid #e7eeeb; border-radius: 0; margin: 0 0 25px; padding: 0 0 22px; }
+.shell .fieldset:last-child { border-bottom: 0; margin-bottom: 0; padding-bottom: 0; }
+.shell .fieldset > legend { padding: 0; margin-bottom: 17px; font-size: 10px; letter-spacing: 1.6px; color: #2c6263; }
+.shell .field { margin-bottom: 15px; }
+.shell .field > span { font-size: 12px; color: #627572; margin-bottom: 7px; }
+.shell input, .shell textarea, .shell select { border-color: #dfe7e3; border-radius: 8px; padding: 10px 12px; font-size: 13px; min-height: 41px; }
+.shell input:focus, .shell textarea:focus, .shell select:focus { border-color: #46847d; outline: 3px solid #e7f2ed; }
+.shell .hint { font-size: 11px; line-height: 1.7; color: #788984; }
+.shell .grid2, .shell .grid3 { gap: 14px; }
+.shell .btn { border-radius: 8px; padding: 10px 15px; font-size: 12px; font-weight: 600; }
+.shell .btn--ghost { background: #fff; border-color: #d6e2dd; color: #365c59; }
+.shell .btn--ghost:hover { background: #edf5f0; border-color: #9ebfb1; }
+.shell .btn--tiny { padding: 6px 9px; font-size: 10px; }
+.shell .toolbar { background: #fff; border: 1px solid #dfe8e4; border-radius: 12px; padding: 12px; max-width: none; gap: 8px; }
+.shell .page { padding: 34px 32px; }
+.shell .page__head { margin-bottom: 28px; }
+.shell .page__title { font-size: 28px; font-weight: 600; letter-spacing: -.9px; margin-bottom: 9px; }
+.shell .page__sub { line-height: 1.7; }
+.shell .card__title { font-size: 14px; text-transform: none; letter-spacing: -.2px; margin-bottom: 22px; }
+.shell .saved__row { border-radius: 10px; padding: 14px; border-color: #e1eae5; }
+.shell .saved__row.is-current { background: #edf6f0; border-color: #9bc9b8; }
+.shell .saved__title { color: #244d4d; }
+.shell .item { background: #f7faf8; border-color: #e1e9e4; border-radius: 10px; padding: 14px; }
+.shell .modal { border-radius: 16px; }
+.shell button:focus-visible, .shell a:focus-visible { outline: 3px solid #88baaa; outline-offset: 3px; }
+@media screen and (min-width: 1101px) { .shell .app { grid-template-columns: minmax(340px, 430px) minmax(0, 1fr); padding: 26px 32px 32px; } .shell .pane--form { top: 24px; scrollbar-width: thin; scrollbar-color: #bccfc5 transparent; } }
+@media screen and (max-width: 1100px) { .shell .app { padding: 24px; } }
+@media screen and (max-width: 600px) { .workspaceHeading { padding: 24px 18px 0; align-items: flex-start; } .workspaceStatus { display: none; } .workspaceHeading h1 { font-size: 25px; } .shell .app, .shell .page { padding: 20px 16px; } .shell .card, .shell .pane--form { padding: 18px; } .shell .sidebar { padding: 18px 14px; gap: 18px; } .shell .sidebar__link { padding: 10px; } .shell .toolbar .btn { flex: 1 1 auto; } }
+@media print { .workspaceHeading, .workspacePanelHeading { display: none !important; } .shell { background: #fff; } .shell .toolbar { display: none !important; } }
 
 .authFields { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 14px; }
 .authRemember { display: flex; align-items: center; gap: 8px; font-size: 14px; }

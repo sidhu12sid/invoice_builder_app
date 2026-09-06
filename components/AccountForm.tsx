@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import PasswordField from './PasswordField';
+import AuthLayout from './AuthLayout';
 import { useEffect, useState, type FormEvent } from 'react';
 
 export default function AccountForm({ mode }: { mode: 'login' | 'signup' | 'verify' }) {
@@ -64,25 +65,25 @@ export default function AccountForm({ mode }: { mode: 'login' | 'signup' | 'veri
     finally { setBusy(false); }
   }
 
-  return <main className="authWrap"><form className="authCard" onSubmit={submit}>
+  return <AuthLayout mode={mode}><form className="authCard" onSubmit={submit}>
+    <p className="accountStep">{mode === 'login' ? 'YOUR INVOICING WORKSPACE' : mode === 'signup' ? 'GET STARTED' : 'ONE LAST STEP'}</p>
     <h1 className="appTitle">{mode === 'signup' ? 'Create your account' : mode === 'verify' ? 'OTP verification' : 'Welcome back'}</h1>
     <p className="appSub">{mode === 'signup' ? 'Create an Invoice Generator account. We’ll email you a verification code.' : mode === 'verify' ? 'Enter the OTP sent to your signup email. After verification, you’ll be redirected to sign in.' : 'Sign in to create and manage your invoices.'}</p>
     <fieldset disabled={busy} className="authFields">
-      {mode === 'signup' && <>
+      {mode === 'signup' && <div className="accountNames">
         <label className="field"><span>First name</span><input required maxLength={100} autoComplete="given-name" value={firstName} onChange={e => setFirstName(e.target.value)} /></label>
         <label className="field"><span>Last name</span><input required maxLength={100} autoComplete="family-name" value={lastName} onChange={e => setLastName(e.target.value)} /></label>
-      </>}
+      </div>}
       <label className="field"><span>Email</span><input type="email" required maxLength={254} autoComplete="email" value={email} onChange={e => setEmail(e.target.value)} /></label>
       {mode !== 'verify' && <PasswordField label="Password" minLength={mode === 'signup' ? 12 : 1} autoComplete={mode === 'signup' ? 'new-password' : 'current-password'} value={password} onChange={setPassword} hint={mode === 'signup' ? 'Use at least 12 characters.' : undefined} />}
       {mode === 'signup' && <PasswordField label="Confirm password" autoComplete="new-password" value={confirm} onChange={setConfirm} />}
-      {mode === 'verify' && <label className="field"><span>Verification code</span><input required inputMode="numeric" pattern="[0-9]{6,10}" maxLength={10} autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))} /></label>}
-      {mode === 'login' && <label className="authRemember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Remember me for 45 days</label>}
+      {mode === 'verify' && <label className="field"><span>Verification code</span><input className="accountOtp" placeholder="Enter code" required inputMode="numeric" pattern="[0-9]{6,10}" maxLength={10} autoComplete="one-time-code" value={otp} onChange={e => setOtp(e.target.value.replace(/\D/g, ''))} /></label>}
+      {mode === 'login' && <div className="accountOptions"><label className="authRemember"><input type="checkbox" checked={remember} onChange={e => setRemember(e.target.checked)} /> Remember me for 45 days</label><Link href="/forgot-password">Forgot password?</Link></div>}
       <button className="btn authSubmit" disabled={busy}>{busy ? 'Please wait…' : mode === 'signup' ? 'Create account' : mode === 'verify' ? 'Verify OTP and continue' : 'Sign in'}</button>
     </fieldset>
     {error && <p role="alert" className="msg msg--error">{error}</p>}
     {notice && <p role="status" className="msg msg--ok">{notice}</p>}
-    {mode === 'login' && <p className="hint"><Link href="/forgot-password">Forgot password?</Link></p>}
     {mode === 'verify' && <p className="hint">Didn’t receive an OTP? <button type="button" className="linkBtn" disabled={busy || cooldown > 0 || !email} onClick={e => submit(e, true)}>{cooldown ? `Resend OTP in ${cooldown}s` : 'Resend OTP'}</button></p>}
     <p className="hint authSwap">{mode === 'login' ? <>New here? <Link href="/signup">Create account</Link></> : <Link href="/login">Back to sign in</Link>}</p>
-  </form></main>;
+  </form></AuthLayout>;
 }

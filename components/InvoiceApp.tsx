@@ -412,8 +412,11 @@ export default function InvoiceApp() {
         )}
 
         {view === 'create' && (
+          <>
+          <header className="workspaceHeading"><div><p className="workspaceEyebrow">YOUR WORKSPACE</p><h1>Create an invoice</h1><p>Bring your billable work together. Preview every detail as you go.</p></div><span className="workspaceStatus"><span />Live preview</span></header>
           <div className="app">
             <div className="pane pane--form">
+              <div className="workspacePanelHeading"><h2>Invoice editor</h2><span>Your details, beautifully arranged</span></div>
               <InvoiceForm
                 data={data}
                 onChange={update}
@@ -481,6 +484,7 @@ export default function InvoiceApp() {
               <ScaledPreview data={data} remeasureKey={collapsed} />
             </div>
           </div>
+          </>
         )}
       </main>
 
