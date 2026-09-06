@@ -68,7 +68,7 @@ export default function SavedInvoicesView({
             <div className="card savedEmpty">
               <p className="hint">
                 {items.length
-                  ? 'Select an invoice on the left to preview it here.'
+                  ? 'Select an invoice to preview it here.'
                   : 'Once you save an invoice it will show up here.'}
               </p>
             </div>

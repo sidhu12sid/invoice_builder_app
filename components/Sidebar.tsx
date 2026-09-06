@@ -1,5 +1,7 @@
 'use client';
 
+import { useRef, useState } from 'react';
+
 export type View = 'dashboard' | 'create' | 'saved' | 'clients' | 'currencies' | 'profile';
 
 /** Small inline icons so the collapsed rail still reads at a glance. */
@@ -60,10 +62,17 @@ export default function Sidebar({
   onToggle,
   onSignOut,
 }: Props) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
   return (
-    <nav className={`sidebar${collapsed ? ' is-collapsed' : ''}`}>
+    <nav aria-label="Main navigation" className={`sidebar${collapsed ? ' is-collapsed' : ''}${menuOpen ? ' is-menu-open' : ''}`} onKeyDown={event => {
+      if (event.key === 'Escape' && menuOpen) { setMenuOpen(false); menuButton.current?.focus(); }
+    }}>
       <div className="sidebar__top">
-        {!collapsed && <span className="sidebar__brand">Invoice Generator</span>}
+        <span className="sidebar__brand">Invoice Generator</span>
+        <button ref={menuButton} type="button" className="sidebar__mobileToggle" aria-label={menuOpen ? 'Close navigation' : 'Open navigation'} aria-expanded={menuOpen} aria-controls="sidebar-navigation sidebar-account" onClick={() => setMenuOpen(open => !open)}>
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden="true"><path d={menuOpen ? 'M6 6l12 12M6 18L18 6' : 'M4 6h16M4 12h16M4 18h16'} /></svg>
+        </button>
         <button
           type="button"
           className="sidebar__toggle"
@@ -85,14 +94,18 @@ export default function Sidebar({
         </button>
       </div>
 
-      <ul className="sidebar__nav">
+      <ul className="sidebar__nav" id="sidebar-navigation">
         {ITEMS.map((item) => (
           <li key={item.id}>
             <button
               type="button"
               className={`sidebar__link${view === item.id ? ' is-active' : ''}`}
-              onClick={() => onChange(item.id)}
+              onClick={() => {
+                onChange(item.id);
+                if (menuOpen) { setMenuOpen(false); menuButton.current?.focus(); }
+              }}
               aria-current={view === item.id ? 'page' : undefined}
+              aria-label={item.label}
               title={collapsed ? item.label : undefined}
             >
               <svg
@@ -110,19 +123,16 @@ export default function Sidebar({
                 {ICONS[item.id]}
               </svg>
 
-              {!collapsed && (
                 <span className="sidebar__text">
                   <span className="sidebar__label">{item.label}</span>
                   <span className="sidebar__hint">{item.hint}</span>
                 </span>
-              )}
             </button>
           </li>
         ))}
       </ul>
 
-      {!collapsed && (
-        <div className="sidebar__foot">
+        <div className="sidebar__foot" id="sidebar-account">
           <span className="badge badge--block" title={account}>
             {synced ? account || 'Synced' : 'This browser only'}
           </span>
@@ -132,7 +142,6 @@ export default function Sidebar({
             </button>
           )}
         </div>
-      )}
     </nav>
   );
 }

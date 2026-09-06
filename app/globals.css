@@ -1148,6 +1148,64 @@ tr.totalRow td {
 @media screen and (max-width: 600px) { .workspaceHeading { padding: 24px 18px 0; align-items: flex-start; } .workspaceStatus { display: none; } .workspaceHeading h1 { font-size: 25px; } .shell .app, .shell .page { padding: 20px 16px; } .shell .card, .shell .pane--form { padding: 18px; } .shell .sidebar { padding: 18px 14px; gap: 18px; } .shell .sidebar__link { padding: 10px; } .shell .toolbar .btn { flex: 1 1 auto; } }
 @media print { .workspaceHeading, .workspacePanelHeading { display: none !important; } .shell { background: #fff; } .shell .toolbar { display: none !important; } }
 
+/* Keep application controls flexible without changing the A4 document. */
+.sidebar__mobileToggle { display: none; }
+.sidebar.is-collapsed .sidebar__brand,
+.sidebar.is-collapsed .sidebar__text,
+.sidebar.is-collapsed .sidebar__foot { display: none; }
+.sidebar { min-width: 0; overflow-y: auto; }
+.card, .field, .fieldset, .page__cols > *, .savedLayout > *, .dashboardHeader > *, .dashboardCardHeading > * { min-width: 0; }
+.grid2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.saved__actions, .saved__meta, .modal__actions { flex-wrap: wrap; }
+.saved__title, .saved__row, .msg, .page__sub, .dashboardCurrency { overflow-wrap: anywhere; }
+.dashboardCardHeading { flex-wrap: wrap; }
+@media screen and (max-width: 900px) {
+  .shell, .shell.is-collapsed { grid-template-columns: minmax(0, 1fr); }
+  .shell .sidebar { position: static; height: auto; padding: 16px; gap: 12px; overflow: visible; }
+  .shell .sidebar__toggle { display: none; }
+  .shell .sidebar__top, .shell .sidebar.is-collapsed .sidebar__top { justify-content: space-between; }
+  .shell .sidebar__mobileToggle { display: grid; place-items: center; width: 44px; height: 44px; flex-shrink: 0; border: 1px solid #ffffff30; border-radius: 9px; background: #ffffff12; color: #fff; cursor: pointer; }
+  .shell .sidebar .sidebar__brand { display: block; padding-left: 0; }
+  .shell .sidebar .sidebar__text { display: flex; }
+  .shell .sidebar__nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+  .shell .sidebar .sidebar__link { justify-content: flex-start; min-height: 44px; padding: 10px; gap: 8px; }
+  .shell .sidebar__label { font-size: 12px; }
+  .shell .sidebar .sidebar__foot { display: flex; flex-direction: row; align-items: center; padding-top: 8px; }
+  .shell .sidebar__foot .badge { flex: 1; width: auto; }
+  .shell .sidebar__foot .linkBtn { min-height: 44px; padding: 8px; flex-shrink: 0; }
+  .shell .sidebar:not(.is-menu-open) .sidebar__nav,
+  .shell .sidebar:not(.is-menu-open) .sidebar__foot { display: none; }
+  .shell .app, .shell .savedLayout, .shell .page__cols { grid-template-columns: minmax(0, 1fr); }
+  .shell .pane--form { position: static; max-height: none; overflow: visible; }
+  .shell input:not([type=checkbox]), .shell textarea, .shell select,
+  .accountLayout input:not([type=checkbox]), .modal input, .modal textarea { font-size: 16px; min-height: 44px; }
+  .shell .btn, .modal .btn { min-height: 44px; }
+  .accountLayout .passwordToggle { min-width: 44px; min-height: 44px; }
+}
+@media screen and (max-width: 600px) {
+  .shell .grid2, .shell .grid3, .accountNames { grid-template-columns: minmax(0, 1fr); }
+  .shell .sidebar__nav { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .shell .toolbar { display: flex; flex-wrap: wrap; }
+  .shell .toolbar .btn { flex: 1 1 120px; white-space: normal; }
+  .toolbar__spacer { display: none; }
+  .previewLabel { flex-basis: 100%; white-space: normal; overflow-wrap: anywhere; }
+  .saved__actions .btn { flex: 1 1 85px; }
+  .saved__amount { margin-left: 0; }
+  .shell .saved { max-height: none; overflow: visible; }
+  .dashboardWelcome { padding: 22px; }
+  .dashboardClients li { flex-wrap: wrap; }
+  .dashboardClients b { max-width: 100%; }
+  .dashboardChart { gap: 6px; }
+  .dashboardCurrency { max-width: 100%; }
+  .accountOptions { align-items: flex-start; gap: 16px; }
+  .accountOptions > a, .authSwap a, .accountLayout .linkBtn { display: inline-flex; align-items: center; min-height: 44px; }
+  .authRemember { min-height: 44px; }
+  .modalBackdrop { padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
+  .shell .modal, .modal { padding: 20px; margin: auto 0; }
+  .modal__actions .btn { flex: 1 1 100px; }
+}
+
 .authFields { border: 0; padding: 0; margin: 0; min-width: 0; display: grid; gap: 14px; }
 .authRemember { display: flex; align-items: center; gap: 8px; font-size: 14px; }
 .authRemember input { width: auto; }
