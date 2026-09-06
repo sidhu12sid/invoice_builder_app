@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import PasswordField from './PasswordField';
+import AuthLayout from './AuthLayout';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 
 export default function PasswordRecoveryForm({ reset = false }: { reset?: boolean }) {
@@ -64,7 +65,8 @@ export default function PasswordRecoveryForm({ reset = false }: { reset?: boolea
     finally { setBusy(false); }
   }
 
-  return <main className="authWrap"><form className="authCard" onSubmit={submit}>
+  return <AuthLayout mode={reset ? 'reset-password' : 'forgot-password'}><form className="authCard" onSubmit={submit}>
+    <p className="accountStep">ACCOUNT RECOVERY</p>
     <h1 className="appTitle">{reset ? 'Reset your password' : 'Forgot password?'}</h1>
     <p className="appSub">{reset ? 'Once your email link is verified, choose a new password.' : 'Enter your account email. We’ll send a verification link to reset your password.'}</p>
     {reset && verification === 'checking' && <p role="status">Verifying your link…</p>}
@@ -80,5 +82,5 @@ export default function PasswordRecoveryForm({ reset = false }: { reset?: boolea
     {notice && <p className="msg msg--ok" role="status">{notice}</p>}
     {reset && <p className="hint"><Link href="/forgot-password">Request a new reset link</Link></p>}
     <p className="hint authSwap"><Link href="/login">Back to sign in</Link></p>
-  </form></main>;
+  </form></AuthLayout>;
 }

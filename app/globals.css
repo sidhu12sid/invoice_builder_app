@@ -841,12 +841,17 @@ select:disabled {
 /* ------------------------------------------------------------- invoice --- */
 
 .sheet {
+  --navy: #0a3e43;
+  --navy-tint: #e2f1ec;
+  --muted: #595959;
+  --line: #cddfd9;
+  --text: #243b3e;
   width: 210mm;
   min-height: 297mm;
   padding: 16mm 15mm;
   background: #fff;
   color: #000;
-  box-shadow: 0 6px 24px rgba(31, 56, 100, 0.14);
+  box-shadow: 0 6px 24px rgba(10, 62, 67, 0.14);
   font-size: 11pt;
 }
 
@@ -1033,9 +1038,9 @@ tr.totalRow td {
   margin: 12mm;
 }
 
-/* Workspace theme follows the account pages; the A4 document keeps its template. */
+/* Workspace and A4 document share the account pages' teal palette. */
 .shell { --navy: #0a3e43; --navy-tint: #e2f1ec; --muted: #6b7c7d; --line: #d6e3df; --page-bg: #f3f7f5; --panel-border: #dfe8e4; --text: #243b3e; background: var(--page-bg); font-family: Arial, sans-serif; }
-.shell .sheet { --navy: #1f3864; --navy-tint: #d9e2f3; --muted: #595959; --line: #c9d3e6; --text: #1b2333; font-family: Calibri, 'Segoe UI', sans-serif; }
+.shell .sheet { font-family: Calibri, 'Segoe UI', sans-serif; }
 .workspaceHeading { display: flex; justify-content: space-between; align-items: center; gap: 20px; padding: 32px 32px 0; max-width: 1600px; margin: auto; }
 .workspaceEyebrow { font-size: 10px; letter-spacing: 2px; color: #6f8b88; font-weight: 700; margin: 0 0 8px; }
 .workspaceHeading h1 { font-size: 29px; letter-spacing: -1px; font-weight: 600; margin: 0 0 8px; color: #163c3f; }

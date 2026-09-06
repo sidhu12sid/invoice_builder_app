@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 
-export default function AuthLayout({ children, mode }: { children: ReactNode; mode: 'login' | 'signup' | 'verify' }) {
+export default function AuthLayout({ children, mode }: { children: ReactNode; mode: 'login' | 'signup' | 'verify' | 'forgot-password' | 'reset-password' }) {
   return <main className={`accountLayout accountLayout--${mode}`}>
     <section className="accountMain">
       <div className="accountBrand"><span className="accountBrandMark" aria-hidden="true"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="1.7"><path d="M6 3h9l4 4v14H6zM14 3v5h5M9 12h7M9 16h5" /></svg></span>Invoice Generator</div>
