@@ -1038,6 +1038,63 @@ tr.totalRow td {
   margin: 12mm;
 }
 
+.dashboard { max-width: 1600px; margin: auto; padding: 36px 32px; font-size: 14px; }
+.dashboardHeader, .dashboardCardHeading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 24px; }
+.dashboardHeader h1 { margin: 0 0 8px; font-size: 30px; letter-spacing: -1px; color: #163c3f; }
+.dashboardHeader p:not(.workspaceEyebrow), .dashboardCardHeading p { color: #6b807c; margin: 6px 0 0; line-height: 1.6; }
+.dashboardFilter { display: grid; gap: 7px; color: #476460; font-size: 12px; }
+.dashboardFilter select { min-width: 240px; background: white; }
+.dashboardWelcome { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 30px; margin-bottom: 24px; border-radius: 18px; background: radial-gradient(ellipse at top right, #3b7777, transparent 65%), #0a3e43; color: white; }
+.dashboardWelcome h2 { font-size: clamp(24px, 2.5vw, 34px); font-weight: 500; letter-spacing: -.8px; margin: 12px 0; }
+.dashboardWelcome p { color: #c1dad6; margin-bottom: 0; line-height: 1.6; }
+.dashboardWelcome > div > span { font-size: 10px; letter-spacing: 2px; color: #b7dbd2; }
+.shell .dashboardWelcome .btn { background: #e2f1ec; color: #0a3e43; border: none; white-space: nowrap; }
+.dashboardMetrics { display: grid; grid-template-columns: 1.35fr 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+.dashboardMetric, .dashboardCard { background: white; border: 1px solid #dfe8e4; border-radius: 16px; padding: 24px; min-width: 0; }
+.dashboardMetric > span { display: block; color: #57736e; font-size: 13px; margin-bottom: 22px; }
+.dashboardMetric strong { display: block; font-size: 32px; font-weight: 600; color: #143f43; overflow-wrap: anywhere; }
+.dashboardMetric strong small { font-size: 15px; color: #78908b; font-weight: 400; }
+.dashboardMetric p { font-size: 11px; color: #78908b; line-height: 1.6; margin-bottom: 0; }
+.dashboardMoney > div { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.dashboardMoney strong { font-size: 25px; }
+.dashboardMoney small { color: #52766d; }
+.dashboardHours { margin-bottom: 24px; }
+.dashboardColumns { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 24px; margin-bottom: 24px; }
+.dashboardCard h2 { font-size: 18px; font-weight: 600; color: #173e42; margin: 0; }
+.dashboardCardHeading p { font-size: 12px; }
+.dashboardCurrency { padding: 6px 10px; border-radius: 20px; background: #e2f1ec; color: #285a51; font-size: 11px; }
+.dashboardLegend { display: flex; flex-wrap: wrap; gap: 20px; font-size: 11px; color: #0a3e43; }
+.dashboardLegend span + span { color: #478776; }
+.dashboardChart { display: flex; gap: 12px; height: 220px; margin: 24px 0; }
+.dashboardMonth { flex: 1; min-width: 0; text-align: center; color: #647d77; font-size: 10px; }
+.dashboardBars { display: flex; align-items: flex-end; justify-content: center; gap: 5px; height: 190px; border-bottom: 1px solid #dfe8e4; margin-bottom: 10px; background: repeating-linear-gradient(to top, transparent 0, transparent 46px, #f0f5f2 47px, transparent 48px); }
+.dashboardBars > div { width: 25%; max-width: 28px; background: #0a3e43; border-radius: 5px 5px 0 0; }
+.dashboardBars > div + div { background: #8ec7b3; }
+.dashboardTableWrap { overflow-x: auto; }
+.dashboardTable { border-collapse: collapse; width: 100%; font-size: 10px; text-align: right; }
+.dashboardTable th, .dashboardTable td { padding: 9px 7px; border-bottom: 1px solid #e7efeb; white-space: nowrap; }
+.dashboardTable th { font-weight: 500; color: #5b7770; }
+.dashboardTable th:first-child { text-align: left; }
+.dashboardTable caption { caption-side: bottom; text-align: left; padding-top: 12px; }
+.dashboardClients { padding: 0; margin: 0; list-style: none; }
+.dashboardClients li { display: flex; align-items: center; gap: 12px; padding: 20px 0; border-bottom: 1px solid #edf2ef; }
+.dashboardRank { display: grid; place-items: center; width: 32px; height: 32px; flex-shrink: 0; border-radius: 10px; background: #e9f3ee; color: #306453; font-size: 12px; }
+.dashboardClients li > div { flex: 1; min-width: 0; }
+.dashboardClients strong { font-size: 12px; overflow-wrap: anywhere; }
+.dashboardClients small { display: block; margin-top: 5px; color: #7a8e88; font-size: 10px; }
+.dashboardClients b { font-size: 12px; overflow-wrap: anywhere; }
+.dashboardActions { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.dashboardActions button { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 18px; background: #f4f8f5; border: 1px solid #dfe8e4; border-radius: 10px; color: #234d46; cursor: pointer; text-align: left; }
+.dashboardActions button:hover { background: #e2f1ec; }
+.dashboardNote { color: #71867f; font-size: 12px; line-height: 1.7; }
+.dashboardEmpty { margin-bottom: 24px; text-align: center; padding: 40px; }
+.dashboardEmpty p { color: #71867f; }
+.dashboardPayment { margin-top: 24px; border-top: 1px solid #e1ebe6; padding-top: 16px; }
+.dashboardPayment fieldset { border: 0; padding: 0; display: grid; grid-template-columns: 2fr 1fr 1fr auto; align-items: end; gap: 16px; min-width: 0; }
+.dashboardPayment .field { margin: 0; min-width: 0; }
+@media (max-width: 1200px) { .dashboardMetrics { grid-template-columns: repeat(2, minmax(0, 1fr)); } .dashboardColumns { grid-template-columns: minmax(0, 1fr); } .dashboardActions { grid-template-columns: repeat(2, 1fr); } .dashboardPayment fieldset { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 650px) { .dashboard { padding: 24px 16px; } .dashboardHeader, .dashboardWelcome { flex-direction: column; align-items: stretch; } .dashboardFilter select { min-width: 0; } .dashboardMetric, .dashboardCard { padding: 18px; } .dashboardMetrics, .dashboardActions, .dashboardPayment fieldset { grid-template-columns: minmax(0, 1fr); } }
+
 /* Workspace and A4 document share the account pages' teal palette. */
 .shell { --navy: #0a3e43; --navy-tint: #e2f1ec; --muted: #6b7c7d; --line: #d6e3df; --page-bg: #f3f7f5; --panel-border: #dfe8e4; --text: #243b3e; background: var(--page-bg); font-family: Arial, sans-serif; }
 .shell .sheet { font-family: Calibri, 'Segoe UI', sans-serif; }

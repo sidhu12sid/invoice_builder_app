@@ -12,6 +12,7 @@ import CurrenciesView from './CurrenciesView';
 import { listCurrencies, addCurrency, type Currency } from '@/lib/currencies';
 import ProfileView from './ProfileView';
 import SavedInvoicesView from './SavedInvoicesView';
+import DashboardView from './DashboardView';
 
 import {
   Invoice,
@@ -42,7 +43,7 @@ const SIDEBAR_KEY = 'invoice-generator:sidebar-collapsed';
 type Target = { data: Invoice; id: string | null };
 
 export default function InvoiceApp() {
-  const [view, setView] = useState<View>('create');
+  const [view, setView] = useState<View>('dashboard');
   const [collapsed, setCollapsed] = useState(false);
 
   const [data, setData] = useState<Invoice>(defaultInvoice);
@@ -284,7 +285,7 @@ export default function InvoiceApp() {
 
   const handleDuplicate = (item: SavedInvoice) => {
     const copy = { ...defaultInvoice, ...item.data };
-    setData({ ...copy, invoiceNo: nextInvoiceNo(copy.invoiceNo) });
+    setData({ ...copy, payments: [], invoiceNo: nextInvoiceNo(copy.invoiceNo) });
     setCurrentId(null); // saves as a new row
     setView('create');
     flash('Copied — invoice number bumped. Save when ready.');
@@ -364,6 +365,12 @@ export default function InvoiceApp() {
       />
 
       <main className="shell__main">
+        {view === 'dashboard' && <DashboardView items={saved} loading={listLoading} error={error} onCreate={() => setView('create')} onClients={() => setView('clients')} onSaved={() => setView('saved')} onPayment={async (item, payment) => {
+          const next = { ...item.data, payments: [...(item.data.payments ?? []), payment] };
+          await saveInvoice(next, item.id, item.status);
+          if (currentId === item.id) setData(previous => ({ ...previous, payments: next.payments }));
+          await refresh();
+        }} />}
         {currencyError && view !== 'currencies' && <p className="msg msg--error" role="alert">{currencyError}</p>}
         {view === 'currencies' && <CurrenciesView currencies={currencies} error={currencyError} onAdd={async currency => {
           await addCurrency(currency);

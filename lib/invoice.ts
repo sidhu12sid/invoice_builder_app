@@ -7,6 +7,7 @@ export type LineItem = {
 };
 
 export type Invoice = {
+  payments?: { id: string; date: string; amount: number }[];
   // Sender ("from") block
   senderName: string;
   senderAddress1: string;

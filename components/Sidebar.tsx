@@ -1,9 +1,10 @@
 'use client';
 
-export type View = 'create' | 'saved' | 'clients' | 'currencies' | 'profile';
+export type View = 'dashboard' | 'create' | 'saved' | 'clients' | 'currencies' | 'profile';
 
 /** Small inline icons so the collapsed rail still reads at a glance. */
 const ICONS: Record<View, React.ReactNode> = {
+  dashboard: <><rect x="3" y="3" width="7" height="7" rx="1" /><rect x="14" y="3" width="7" height="7" rx="1" /><rect x="3" y="14" width="7" height="7" rx="1" /><rect x="14" y="14" width="7" height="7" rx="1" /></>,
   currencies: <><circle cx="12" cy="12" r="9" /><path d="M15 8h-5a2 2 0 0 0 0 4h4a2 2 0 0 1 0 4H9M12 6v12" /></>,
   create: (
     <>
@@ -32,6 +33,7 @@ const ICONS: Record<View, React.ReactNode> = {
 };
 
 const ITEMS: { id: View; label: string; hint: string }[] = [
+  { id: 'dashboard', label: 'Dashboard', hint: 'Your business at a glance' },
   { id: 'create', label: 'Create invoice', hint: 'Fill in a new invoice' },
   { id: 'saved', label: 'Saved invoices', hint: 'View, print, email' },
   { id: 'clients', label: 'Clients', hint: 'People you bill' },
