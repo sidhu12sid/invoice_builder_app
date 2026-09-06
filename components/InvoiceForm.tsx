@@ -100,9 +100,9 @@ export default function InvoiceForm({
         <div className="grid2">
           <Text
             label="Invoice date"
-            value={data.invoiceDate}
-            placeholder="DD/MM/YYYY"
-            onChange={(v) => onChange({ invoiceDate: v })}
+            type="date"
+            value={data.invoiceDate.replace(/^(\d{2})\/(\d{2})\/(\d{4})$/, '$3-$2-$1')}
+            onChange={(v) => onChange({ invoiceDate: v.replace(/^(\d{4})-(\d{2})-(\d{2})$/, '$3/$2/$1') })}
           />
           <Text
             label="Invoice no."
