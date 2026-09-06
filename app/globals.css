@@ -1149,6 +1149,23 @@ tr.totalRow td {
 @media print { .workspaceHeading, .workspacePanelHeading { display: none !important; } .shell { background: #fff; } .shell .toolbar { display: none !important; } }
 
 /* Keep application controls flexible without changing the A4 document. */
+/* Safari's native date control has an intrinsic width and centered value. */
+input[type="date"] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  min-height: 44px;
+  text-align: left;
+}
+input[type="date"]::-webkit-date-and-time-value {
+  min-width: 0;
+  text-align: left;
+}
+input[type="date"]::-webkit-datetime-edit { padding: 0; }
 .sidebar__mobileToggle { display: none; }
 .sidebar.is-collapsed .sidebar__brand,
 .sidebar.is-collapsed .sidebar__text,
